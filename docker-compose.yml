@@ -1,0 +1,77 @@
+services:
+  # ─── DB Migration (runs once, then exits) ─────────────────────────────────────
+  migrate:
+    image: node:20-alpine
+    container_name: kongbang-migrate
+    working_dir: /app
+    entrypoint: sh -c "npm install --legacy-peer-deps --quiet && npx prisma db push --skip-generate"
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/kongbang
+      DIRECT_URL: postgresql://postgres:postgres@db:5432/kongbang
+    volumes:
+      - .:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kongbang-net
+
+  # ─── Next.js App ──────────────────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-KongBeng Strategist}
+    container_name: kongbang-app
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/kongbang
+      DIRECT_URL: postgresql://postgres:postgres@db:5432/kongbang
+      TYPHOON_API_KEY: ${TYPHOON_API_KEY}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      NEXT_PUBLIC_APP_NAME: ${NEXT_PUBLIC_APP_NAME:-KongBeng Strategist}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-local-dev-secret}
+      NODE_ENV: production
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+    networks:
+      - kongbang-net
+
+  # ─── PostgreSQL ────────────────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: kongbang-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: kongbang
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - kongbang-net
+
+volumes:
+  postgres_data:
+
+networks:
+  kongbang-net:
+    driver: bridge

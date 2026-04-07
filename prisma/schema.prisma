@@ -1,0 +1,112 @@
+// Phase 1 — Prompt 2: Database Schema
+// Prisma schema for KongBeng stock analysis platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─── Admin User ───────────────────────────────────────────────────────────────
+model AdminUser {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  stocks    Stock[]
+
+  @@map("admin_users")
+}
+
+// ─── Stock ────────────────────────────────────────────────────────────────────
+model Stock {
+  id     String @id @default(cuid())
+  symbol String @unique               // e.g. "CPALL", "NVDA"
+  name   String                       // e.g. "CP All Public Company Limited"
+  sector String                       // e.g. "Consumer Staples"
+  exchange String  @default("SET")    // e.g. "SET", "NASDAQ", "NYSE"
+  logoUrl String?                     // clearbit logo URL
+
+  // ── 8 Core Analysis Sections ────────────────────────────────────────────────
+  businessOverview   String? @db.Text  // What does the company do?
+  revenueStructure   String? @db.Text  // JSON: revenue breakdown by segment
+  financialHealth    String? @db.Text  // JSON: P/E, ROE, D/E, yield, EPS
+  growthStrategy     String? @db.Text  // Expansion plans, capex priorities
+  moat               String? @db.Text  // Competitive advantages
+  risks              String? @db.Text  // Key risks and mitigation
+  industryLandscape  String? @db.Text  // Sector trends, TAM, competition
+  strategistVerdict  String? @db.Text  // JSON: score (1-10), summary, bullets
+
+  // ── Meta ────────────────────────────────────────────────────────────────────
+  isPublished Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  updatedById String?    @map("updated_by")
+  updatedBy   AdminUser? @relation(fields: [updatedById], references: [id])
+
+  // Indexes
+  @@index([symbol])
+  @@index([sector])
+  @@index([isPublished])
+  @@map("stocks")
+}
+
+// ─── User (public registered users) ─────────────────────────────────────────
+model User {
+  id        String   @id            // = Supabase Auth UID
+  email     String   @unique
+  name      String?
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// ─── Chat Sessions (for AI Chatbot) ──────────────────────────────────────────
+model ChatSession {
+  id        String        @id @default(cuid())
+  stockId   String        @map("stock_id")
+  sessionId String        @unique @map("session_id") // anonymous browser session
+  messages  ChatMessage[]
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  @@map("chat_sessions")
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  sessionId String      @map("session_id")
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String      // "user" | "assistant"
+  content   String      @db.Text
+  createdAt DateTime    @default(now()) @map("created_at")
+
+  @@index([sessionId])
+  @@map("chat_messages")
+}
+
+// ─── Page Views Analytics ─────────────────────────────────────────────────────
+model PageView {
+  id        String   @id @default(cuid())
+  symbol    String
+  path      String
+  referrer  String?
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([symbol])
+  @@index([createdAt])
+  @@map("page_views")
+}
