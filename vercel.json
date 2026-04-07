@@ -1,4 +1,3 @@
-// Phase 5 — Prompt 10: Vercel deployment config
 {
   "buildCommand": "prisma generate && next build",
   "framework": "nextjs",
