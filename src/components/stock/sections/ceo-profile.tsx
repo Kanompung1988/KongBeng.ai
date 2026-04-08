@@ -1,3 +1,4 @@
+"use client";
 import { UserCheck, CheckCircle, XCircle, MinusCircle } from "lucide-react";
 import Image from "next/image";
 import { SectionHeader } from "./core-business";
