@@ -97,6 +97,15 @@ export const translations = {
   "stock.actual": { th: "ผลจริง", en: "Actual" },
   "stock.verdict": { th: "ผลตัดสิน", en: "Verdict" },
 
+  // Chat Drawer
+  "chat.consultStrategist": { th: "ปรึกษา Strategist", en: "Consult the Strategist" },
+  "chat.ragAnalysis": { th: "วิเคราะห์ RAG", en: "RAG Analysis" },
+  "chat.clearChat": { th: "ล้างแชท", en: "Clear chat" },
+  "chat.placeholder": { th: "ถามเกี่ยวกับหุ้นนี้...", en: "Ask about this stock..." },
+  "chat.aiDisclaimer": { th: "AI ตอบจากข้อมูลวิเคราะห์ของหุ้นนี้เท่านั้น", en: "AI answers are based solely on this stock's analysis data." },
+  "chat.welcome": { th: "สวัสดีครับ Strategist ผมคือ Khongbeng AI พร้อมวิเคราะห์", en: "Greetings, Strategist. I am the Khongbeng AI, deeply versed in the analysis of" },
+  "chat.welcomeSuffix": { th: "ถามผมได้เลยเกี่ยวกับ ธุรกิจ, งบการเงิน, 7 Powers, ความเสี่ยง, หรือ CEO ⚔️", en: "Ask me anything about its business model, financials, 7 Powers, risks, or CEO. ⚔️" },
+
   // Trend
   "nav.trend": { th: "AI Trend", en: "AI Trend" },
   "trend.title": { th: "Khongbeng AI Trend", en: "Khongbeng AI Trend" },

@@ -1,13 +1,17 @@
+"use client";
 import { exchangeFlag } from "@/lib/utils";
 import { Eye, Clock } from "lucide-react";
 import Image from "next/image";
 import type { StockWithAdmin } from "@/types";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   stock: StockWithAdmin;
 }
 
 export function StockHero({ stock }: Props) {
+  const t = useT();
+  const { lang } = useLanguage();
   return (
     <div className="border-b border-border bg-card/30">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -53,11 +57,11 @@ export function StockHero({ stock }: Props) {
         <div className="flex items-center gap-4 mt-6 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5" />
-            {stock.viewCount.toLocaleString()} views
+            {stock.viewCount.toLocaleString()} {t("hero.views")}
           </div>
           <div className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5" />
-            Updated {new Date(stock.updatedAt).toLocaleDateString("en-GB", {
+            {t("hero.updated")} {new Date(stock.updatedAt).toLocaleDateString(lang === "th" ? "th-TH" : "en-GB", {
               day: "2-digit", month: "short", year: "numeric"
             })}
           </div>

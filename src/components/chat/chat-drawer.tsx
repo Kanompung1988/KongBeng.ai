@@ -6,6 +6,7 @@ import { Sword, X, Send, Loader2, Trash2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import type { StockWithAdmin } from "@/types";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   stock: StockWithAdmin;
@@ -34,8 +35,13 @@ export function ChatDrawer({ stock }: Props) {
   const [open, setOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef("");
+  const t = useT();
 
-  const welcome = makeWelcome(stock.symbol, stock.name);
+  const welcome: Message = {
+    id: "welcome",
+    role: "assistant",
+    content: `${t("chat.welcome")} **${stock.symbol} — ${stock.name}**.\n\n${t("chat.welcomeSuffix")}`,
+  };
 
   const {
     messages, input, handleInputChange, handleSubmit, isLoading, setMessages,
@@ -121,7 +127,7 @@ export function ChatDrawer({ stock }: Props) {
           "fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-500/25 flex items-center justify-center transition-all duration-200",
           open && "hidden"
         )}
-        aria-label="Consult the Strategist"
+        aria-label={t("chat.consultStrategist")}
       >
         <Sword className="w-6 h-6" />
       </button>
@@ -140,15 +146,15 @@ export function ChatDrawer({ stock }: Props) {
               <Sword className="w-4 h-4 text-emerald-400" />
             </div>
             <div>
-              <p className="font-semibold text-sm text-foreground">Consult the Strategist</p>
-              <p className="text-xs text-muted-foreground">{stock.symbol} · RAG Analysis</p>
+              <p className="font-semibold text-sm text-foreground">{t("chat.consultStrategist")}</p>
+              <p className="text-xs text-muted-foreground">{stock.symbol} · {t("chat.ragAnalysis")}</p>
             </div>
           </div>
           <div className="flex items-center gap-1">
             <button
               onClick={handleClear}
               className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground"
-              title="Clear chat"
+              title={t("chat.clearChat")}
             >
               <Trash2 className="w-3.5 h-3.5" />
             </button>
@@ -209,7 +215,7 @@ export function ChatDrawer({ stock }: Props) {
             <input
               value={input}
               onChange={handleInputChange}
-              placeholder="Ask about this stock..."
+              placeholder={t("chat.placeholder")}
               className="flex-1 px-4 py-2.5 rounded-xl bg-muted border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
               disabled={isLoading}
             />
@@ -222,7 +228,7 @@ export function ChatDrawer({ stock }: Props) {
             </button>
           </div>
           <p className="text-xs text-muted-foreground mt-2 text-center">
-            AI answers are based solely on this stock&apos;s analysis data.
+            {t("chat.aiDisclaimer")}
           </p>
         </form>
       </div>

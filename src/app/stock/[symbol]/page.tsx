@@ -14,6 +14,7 @@ import { StorySCurveSection } from "@/components/stock/sections/story-scurve";
 import { RisksSection } from "@/components/stock/sections/risks-section";
 import { CeoProfileSection } from "@/components/stock/sections/ceo-profile";
 import { ChatDrawer } from "@/components/chat/chat-drawer";
+import { BackLink } from "@/components/stock/back-link";
 import Image from "next/image";
 
 interface Props {
@@ -87,12 +88,7 @@ export default async function StockPage({ params }: Props) {
           </a>
           <span className="text-muted-foreground">/</span>
           <span className="text-sm font-mono font-semibold text-foreground">{stock.symbol}</span>
-          <a
-            href="/"
-            className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted/50 transition-colors"
-          >
-            &larr; Back
-          </a>
+          <BackLink />
         </div>
       </nav>
 

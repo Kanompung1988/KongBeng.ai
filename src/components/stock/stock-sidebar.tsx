@@ -1,8 +1,9 @@
 "use client";
 
-import { SECTION_LABELS, type SectionKey } from "@/types";
+import { type SectionKey } from "@/types";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import { useT } from "@/lib/i18n/context";
 
 const SECTIONS: SectionKey[] = [
   "coreBusiness",
@@ -15,8 +16,20 @@ const SECTIONS: SectionKey[] = [
   "ceoProfile",
 ];
 
+const SECTION_I18N: Record<SectionKey, string> = {
+  coreBusiness: "section.coreBusiness",
+  customerBase: "section.customerBase",
+  revenueModel: "section.revenueModel",
+  financials: "section.financials",
+  sevenPowers: "section.sevenPowers",
+  storyAndSCurve: "section.storyAndSCurve",
+  risks: "section.risks",
+  ceoProfile: "section.ceoProfile",
+};
+
 export function StockSidebar() {
   const [active, setActive] = useState<SectionKey>("coreBusiness");
+  const t = useT();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -47,7 +60,7 @@ export function StockSidebar() {
 
   return (
     <div className="sticky top-24 space-y-1">
-      <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 px-2">Sections</p>
+      <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3 px-2">{t("stock.sections")}</p>
       {SECTIONS.map((key) => (
         <button
           key={key}
@@ -59,7 +72,7 @@ export function StockSidebar() {
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           )}
         >
-          {SECTION_LABELS[key]}
+          {t(SECTION_I18N[key])}
         </button>
       ))}
     </div>
