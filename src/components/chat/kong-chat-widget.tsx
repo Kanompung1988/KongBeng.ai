@@ -34,6 +34,13 @@ export function KongChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Auto-dismiss error after 5 seconds
+  useEffect(() => {
+    if (!chatError) return;
+    const t = setTimeout(() => setChatError(null), 5000);
+    return () => clearTimeout(t);
+  }, [chatError]);
+
   return (
     <>
       {/* Floating button */}
