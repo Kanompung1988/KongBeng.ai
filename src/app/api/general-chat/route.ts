@@ -65,7 +65,7 @@ export async function POST(req: Request) {
       messages: chatMessages,
       temperature: 0.7,
       topP: 0.7,
-      maxTokens: 600,
+      maxTokens: 8192,
       frequencyPenalty: 0,
     });
 
