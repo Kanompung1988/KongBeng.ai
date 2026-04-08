@@ -3,6 +3,7 @@ import { Shield } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
 import { SectionHeader } from "./core-business";
 import { parseSevenPowers } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -16,6 +17,7 @@ const levelColors = {
 
 export function SevenPowersSection({ raw }: Props) {
   const data = parseSevenPowers(raw);
+  const t = useT();
   if (!data) return null;
 
   const radarData = data.powers.map((p) => ({
@@ -26,7 +28,7 @@ export function SevenPowersSection({ raw }: Props) {
 
   return (
     <section id="sevenPowers" className="scroll-mt-24">
-      <SectionHeader icon={<Shield className="w-5 h-5 text-cyan-400" />} title="7 Powers Analysis" />
+      <SectionHeader icon={<Shield className="w-5 h-5 text-cyan-400" />} title={t("section.sevenPowers")} />
       <div className="glass-card p-6 space-y-6">
         {/* Radar Chart */}
         <div className="flex justify-center">

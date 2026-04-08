@@ -3,6 +3,7 @@ import { PieChart as PieChartIcon } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { SectionHeader } from "./core-business";
 import { parseRevenueModel } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -12,11 +13,12 @@ const DEFAULT_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444"];
 
 export function RevenueModelSection({ raw }: Props) {
   const data = parseRevenueModel(raw);
+  const t = useT();
   if (!data) return null;
 
   return (
     <section id="revenueModel" className="scroll-mt-24">
-      <SectionHeader icon={<PieChartIcon className="w-5 h-5 text-purple-400" />} title="Model รายได้ / Revenue Model & Quality" />
+      <SectionHeader icon={<PieChartIcon className="w-5 h-5 text-purple-400" />} title={t("section.revenueModel")} />
       <div className="glass-card p-6 space-y-6">
         {/* Revenue Types Chart + List */}
         {data.revenueTypes && data.revenueTypes.length > 0 && (
@@ -51,7 +53,7 @@ export function RevenueModelSection({ raw }: Props) {
 
             {/* Type Breakdown */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Revenue Types</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t("stock.revenueTypes")}</h3>
               {data.revenueTypes.map((rt, i) => (
                 <div key={i} className="space-y-1">
                   <div className="flex items-center justify-between">
@@ -74,7 +76,7 @@ export function RevenueModelSection({ raw }: Props) {
         {/* Quality Summary */}
         {data.qualitySummary && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-2">Revenue Quality</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.revenueQuality")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{data.qualitySummary}</p>
           </div>
         )}
@@ -94,7 +96,7 @@ export function RevenueModelSection({ raw }: Props) {
         {/* Revenue Evolution */}
         {data.revenueEvolution && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-2">Revenue Evolution</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.revenueEvolution")}</h3>
             {data.revenueEvolution.split("\n").filter(Boolean).map((p, i) => (
               <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-2">{p}</p>
             ))}

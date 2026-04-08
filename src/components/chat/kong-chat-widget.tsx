@@ -10,7 +10,7 @@ export function KongChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
     api: "/api/general-chat",
     initialMessages: [
       {
@@ -20,6 +20,9 @@ export function KongChatWidget() {
           "Hello! I'm Khongbeng AI, your investment analysis assistant. I can help with stock market insights, financial concepts, and investment strategies for both Thai (SET) and US markets. What would you like to know?",
       },
     ],
+    onError: (err) => {
+      console.error("[KongChat] useChat error:", err);
+    },
   });
 
   useEffect(() => {
@@ -95,6 +98,11 @@ export function KongChatWidget() {
                 <div className="bg-muted/50 px-3 py-2 rounded-xl rounded-bl-sm">
                   <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
                 </div>
+              </div>
+            )}
+            {error && (
+              <div className="text-xs text-red-400 bg-red-500/10 rounded-lg px-3 py-2">
+                Error: {error.message}
               </div>
             )}
             <div ref={messagesEndRef} />

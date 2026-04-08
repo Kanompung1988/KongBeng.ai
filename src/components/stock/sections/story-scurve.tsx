@@ -1,6 +1,8 @@
+"use client";
 import { Rocket } from "lucide-react";
 import { SectionHeader } from "./core-business";
 import { parseStorySCurve } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -14,16 +16,17 @@ const potentialColors = {
 
 export function StorySCurveSection({ raw }: Props) {
   const data = parseStorySCurve(raw);
+  const t = useT();
   if (!data) return null;
 
   return (
     <section id="storyAndSCurve" className="scroll-mt-24">
-      <SectionHeader icon={<Rocket className="w-5 h-5 text-purple-400" />} title="Story & New S-Curve" />
+      <SectionHeader icon={<Rocket className="w-5 h-5 text-purple-400" />} title={t("section.storyAndSCurve")} />
       <div className="glass-card p-6 space-y-6">
         {/* Current Story */}
         {data.currentStory && (
           <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground">Current Growth Story</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("stock.currentStory")}</h3>
             {data.currentStory.split("\n").filter(Boolean).map((p, i) => (
               <p key={i} className="text-sm text-muted-foreground leading-relaxed">{p}</p>
             ))}
@@ -33,7 +36,7 @@ export function StorySCurveSection({ raw }: Props) {
         {/* New S-Curves */}
         {data.newSCurves && data.newSCurves.length > 0 && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-3">New S-Curves</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t("stock.newSCurves")}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {data.newSCurves.map((sc, i) => (
                 <div key={i} className="glass-card p-4 bg-muted/20">
@@ -53,7 +56,7 @@ export function StorySCurveSection({ raw }: Props) {
         {/* Hidden Gems */}
         {data.hiddenGems && data.hiddenGems.length > 0 && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Hidden Gems</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t("stock.hiddenGems")}</h3>
             <div className="space-y-3">
               {data.hiddenGems.map((gem, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gold-500/5 border border-gold-500/10">

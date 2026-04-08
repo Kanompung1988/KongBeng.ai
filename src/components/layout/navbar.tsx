@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { LogIn, LogOut, User, Search, LayoutDashboard } from "lucide-react";
+import { LogIn, LogOut, User, Search, LayoutDashboard, TrendingUp } from "lucide-react";
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { useLanguage } from "@/lib/i18n/context";
 import { LogoIcon } from "@/components/ui/logo";
@@ -57,6 +57,15 @@ export function Navbar() {
           <span>{lang === "th" ? "🇹🇭" : "🇺🇸"}</span>
           <span>{lang === "th" ? "TH" : "EN"}</span>
         </button>
+
+        {/* AI Trend link */}
+        <Link
+          href="/trend"
+          className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground hover:text-emerald-400 px-2.5 py-1.5 rounded-lg hover:bg-emerald-500/10 transition-colors"
+        >
+          <TrendingUp className="w-3.5 h-3.5" />
+          {t("nav.trend")}
+        </Link>
 
         {/* Search hint */}
         <button

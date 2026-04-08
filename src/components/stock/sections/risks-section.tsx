@@ -1,6 +1,8 @@
+"use client";
 import { AlertTriangle } from "lucide-react";
 import { SectionHeader } from "./core-business";
 import { parseRisks } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -20,11 +22,12 @@ const severityBorder = {
 
 export function RisksSection({ raw }: Props) {
   const data = parseRisks(raw);
+  const t = useT();
   if (!data) return null;
 
   return (
     <section id="risks" className="scroll-mt-24">
-      <SectionHeader icon={<AlertTriangle className="w-5 h-5 text-orange-400" />} title="ความเสี่ยง / Investment Risks" />
+      <SectionHeader icon={<AlertTriangle className="w-5 h-5 text-orange-400" />} title={t("section.risks")} />
       <div className="glass-card p-6 space-y-4">
         {data.risks.map((risk, i) => (
           <div

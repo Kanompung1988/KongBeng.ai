@@ -1,6 +1,8 @@
 import { UserCheck, CheckCircle, XCircle, MinusCircle } from "lucide-react";
+import Image from "next/image";
 import { SectionHeader } from "./core-business";
 import { parseCeoProfile, verdictToColor } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -17,17 +19,22 @@ const verdictIcons = {
 
 export function CeoProfileSection({ raw }: Props) {
   const data = parseCeoProfile(raw);
+  const t = useT();
   if (!data) return null;
 
   return (
     <section id="ceoProfile" className="scroll-mt-24">
-      <SectionHeader icon={<UserCheck className="w-5 h-5 text-gold-400" />} title="CEO Profile & Execution" />
+      <SectionHeader icon={<UserCheck className="w-5 h-5 text-gold-400" />} title={t("section.ceoProfile")} />
       <div className="glass-card p-6 space-y-6">
         {/* CEO Info */}
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center shrink-0">
-            <span className="text-gold-400 font-bold text-lg">{data.name.charAt(0)}</span>
-          </div>
+          {data.ceoImageUrl ? (
+            <Image src={data.ceoImageUrl} alt={data.name} width={48} height={48} className="w-12 h-12 rounded-full object-cover border border-gold-500/30" unoptimized />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-gold-500/20 border border-gold-500/30 flex items-center justify-center shrink-0">
+              <span className="text-gold-400 font-bold text-lg">{data.name.charAt(0)}</span>
+            </div>
+          )}
           <div>
             <h3 className="font-semibold text-foreground">{data.name}</h3>
             <p className="text-xs text-muted-foreground">{data.title}</p>
@@ -37,7 +44,7 @@ export function CeoProfileSection({ raw }: Props) {
         {/* Background */}
         {data.background && (
           <div className="space-y-2">
-            <h3 className="text-sm font-semibold text-foreground">Background</h3>
+            <h3 className="text-sm font-semibold text-foreground">{t("stock.background")}</h3>
             {data.background.split("\n").filter(Boolean).map((p, i) => (
               <p key={i} className="text-sm text-muted-foreground leading-relaxed">{p}</p>
             ))}
@@ -47,7 +54,7 @@ export function CeoProfileSection({ raw }: Props) {
         {/* Execution Track Record */}
         {data.executionTrackRecord && data.executionTrackRecord.length > 0 && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Execution Track Record</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t("stock.executionTrack")}</h3>
             <div className="space-y-3">
               {data.executionTrackRecord.map((track, i) => {
                 const Icon = verdictIcons[track.verdict];
@@ -76,15 +83,15 @@ export function CeoProfileSection({ raw }: Props) {
         {/* Beat/Miss Record */}
         {data.beatMissRecord && data.beatMissRecord.length > 0 && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Beat / Miss Record</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t("stock.beatMissRecord")}</h3>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-border/50">
-                    <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">Metric</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">Target</th>
-                    <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">Actual</th>
-                    <th className="text-right py-2 px-3 text-muted-foreground text-xs font-medium">Verdict</th>
+                    <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">{t("stock.metric")}</th>
+                    <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">{t("stock.target")}</th>
+                    <th className="text-left py-2 px-3 text-muted-foreground text-xs font-medium">{t("stock.actual")}</th>
+                    <th className="text-right py-2 px-3 text-muted-foreground text-xs font-medium">{t("stock.verdict")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,7 +120,7 @@ export function CeoProfileSection({ raw }: Props) {
         {/* Earnings Call Highlights */}
         {data.earningsCallHighlights && data.earningsCallHighlights.length > 0 && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-3">Earnings Call Highlights</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{t("stock.earningsHighlights")}</h3>
             <div className="space-y-2">
               {data.earningsCallHighlights.map((h, i) => (
                 <div key={i} className="flex items-start gap-2">
@@ -128,7 +135,7 @@ export function CeoProfileSection({ raw }: Props) {
         {/* Summary */}
         {data.summary && (
           <div className="pt-4 border-t border-border/50">
-            <h3 className="text-sm font-semibold text-foreground mb-2">CEO Assessment</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.ceoAssessment")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
           </div>
         )}

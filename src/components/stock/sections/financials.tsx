@@ -6,6 +6,7 @@ import {
 } from "recharts";
 import { SectionHeader } from "./core-business";
 import { parseFinancials } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -19,6 +20,7 @@ const CHART_TOOLTIP_STYLE = {
 
 export function FinancialsSection({ raw }: Props) {
   const data = parseFinancials(raw);
+  const t = useT();
   if (!data) return null;
 
   const unitLabel = data.unit === "billion" ? "B" : "M";
@@ -49,7 +51,7 @@ export function FinancialsSection({ raw }: Props) {
 
   return (
     <section id="financials" className="scroll-mt-24">
-      <SectionHeader icon={<BarChart3 className="w-5 h-5 text-gold-400" />} title="งบการเงิน / Financial Statements" />
+      <SectionHeader icon={<BarChart3 className="w-5 h-5 text-gold-400" />} title={t("section.financials")} />
       <div className="space-y-6">
         {/* Revenue & Profit Chart */}
         <div className="glass-card p-6">
@@ -116,7 +118,7 @@ export function FinancialsSection({ raw }: Props) {
         {/* Key Takeaway Ratios */}
         {data.keyTakeawayRatios && data.keyTakeawayRatios.length > 0 && (
           <div className="glass-card p-6">
-            <h3 className="text-sm font-semibold text-foreground mb-4">Key Takeaway Ratios</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">{t("stock.keyTakeaways")}</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {data.keyTakeawayRatios.map((r, i) => (
                 <div key={i} className="glass-card p-4 bg-muted/20">
@@ -135,7 +137,7 @@ export function FinancialsSection({ raw }: Props) {
         {/* Summary */}
         {data.summary && (
           <div className="glass-card p-6">
-            <h3 className="text-sm font-semibold text-foreground mb-2">Financial Summary</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.summary")}</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
           </div>
         )}

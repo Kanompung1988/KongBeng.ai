@@ -2,6 +2,7 @@
 import { Building2 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { parseCoreBusiness } from "@/lib/utils";
+import { useT } from "@/lib/i18n/context";
 
 // Shared SectionHeader (re-exported for all sections)
 export function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
@@ -21,11 +22,12 @@ interface Props {
 
 export function CoreBusinessSection({ raw }: Props) {
   const data = parseCoreBusiness(raw);
+  const t = useT();
   if (!data) return null;
 
   return (
     <section id="coreBusiness" className="scroll-mt-24">
-      <SectionHeader icon={<Building2 className="w-5 h-5 text-emerald-400" />} title="ธุรกิจหลัก / Core Business" />
+      <SectionHeader icon={<Building2 className="w-5 h-5 text-emerald-400" />} title={t("section.coreBusiness")} />
       <div className="glass-card p-6 space-y-6">
         {/* Summary */}
         <div className="space-y-3">
@@ -39,7 +41,7 @@ export function CoreBusinessSection({ raw }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-border/50">
             {/* Pie Chart */}
             <div className="flex flex-col items-center">
-              <h3 className="text-sm font-semibold text-foreground mb-4">Revenue by Business Unit</h3>
+              <h3 className="text-sm font-semibold text-foreground mb-4">{t("stock.revenueByBU")}</h3>
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
@@ -66,14 +68,14 @@ export function CoreBusinessSection({ raw }: Props) {
               </ResponsiveContainer>
               {data.totalRevenue && (
                 <p className="text-xs text-muted-foreground mt-2">
-                  Total Revenue: {data.totalRevenue} ({data.fiscalYear})
+                  {t("stock.totalRevenue")}: {data.totalRevenue} ({data.fiscalYear})
                 </p>
               )}
             </div>
 
             {/* BU Breakdown List */}
             <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Business Units</h3>
+              <h3 className="text-sm font-semibold text-foreground">{t("stock.businessUnits")}</h3>
               {data.businessUnits.map((bu, i) => (
                 <div key={i} className="space-y-1.5">
                   <div className="flex items-center justify-between">

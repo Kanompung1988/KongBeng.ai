@@ -215,6 +215,15 @@ export function StockForm({ stock }: Props) {
                 <Label className="text-xs font-medium">Sector</Label>
                 <Input value={form.sector} onChange={(e) => update("sector", e.target.value)} placeholder="Consumer Staples" />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium">Logo URL</Label>
+                <div className="flex items-center gap-3">
+                  <Input value={form.logoUrl} onChange={(e) => update("logoUrl", e.target.value)} placeholder="https://logo.clearbit.com/company.com" className="flex-1" />
+                  {form.logoUrl && (
+                    <Image src={form.logoUrl} alt="logo" width={32} height={32} className="rounded-md bg-white p-0.5 shrink-0" unoptimized />
+                  )}
+                </div>
+              </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">
                 <Switch
                   checked={form.isPublished}
@@ -233,6 +242,20 @@ export function StockForm({ stock }: Props) {
             const val = form[key as keyof typeof form] as string;
             const filled = isValidJSON(val);
             const hasContent = !!val?.trim();
+
+            // Helper to update ceoImageUrl inside the JSON
+            const getCeoImageUrl = (): string => {
+              if (key !== "ceoProfile" || !val) return "";
+              try { return JSON.parse(val).ceoImageUrl || ""; } catch { return ""; }
+            };
+            const setCeoImageUrl = (url: string) => {
+              try {
+                const data = JSON.parse(val || "{}");
+                if (url) data.ceoImageUrl = url; else delete data.ceoImageUrl;
+                update(key, JSON.stringify(data, null, 2));
+              } catch { /* ignore if JSON is invalid */ }
+            };
+
             return (
               <TabsContent key={key} value={key}>
                 <div className="glass-card p-6 space-y-4">
@@ -263,6 +286,22 @@ export function StockForm({ stock }: Props) {
                       )}
                     </div>
                   </div>
+                  {key === "ceoProfile" && (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs font-medium">CEO Image URL</Label>
+                      <div className="flex items-center gap-3">
+                        <Input
+                          value={getCeoImageUrl()}
+                          onChange={(e) => setCeoImageUrl(e.target.value)}
+                          placeholder="https://upload.wikimedia.org/..."
+                          className="flex-1"
+                        />
+                        {getCeoImageUrl() && (
+                          <Image src={getCeoImageUrl()} alt="CEO" width={40} height={40} className="rounded-full object-cover shrink-0" unoptimized />
+                        )}
+                      </div>
+                    </div>
+                  )}
                   <Textarea
                     value={val}
                     onChange={(e) => update(key, e.target.value)}

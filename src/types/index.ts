@@ -143,6 +143,7 @@ export interface CeoProfileData {
   name: string;
   title: string;
   background: string;
+  ceoImageUrl?: string;
   executionTrackRecord: {
     claim: string;
     result: string;
