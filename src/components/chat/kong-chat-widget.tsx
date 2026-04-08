@@ -8,9 +8,10 @@ import Image from "next/image";
 
 export function KongChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading, error } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: "/api/general-chat",
     initialMessages: [
       {
@@ -20,8 +21,12 @@ export function KongChatWidget() {
           "Hello! I'm Khongbeng AI, your investment analysis assistant. I can help with stock market insights, financial concepts, and investment strategies for both Thai (SET) and US markets. What would you like to know?",
       },
     ],
+    onResponse: () => {
+      setChatError(null);
+    },
     onError: (err) => {
       console.error("[KongChat] useChat error:", err);
+      setChatError(err.message || "Something went wrong. Please try again.");
     },
   });
 
@@ -100,9 +105,9 @@ export function KongChatWidget() {
                 </div>
               </div>
             )}
-            {error && (
+            {chatError && (
               <div className="text-xs text-red-400 bg-red-500/10 rounded-lg px-3 py-2">
-                Error: {error.message}
+                Error: {chatError}
               </div>
             )}
             <div ref={messagesEndRef} />
