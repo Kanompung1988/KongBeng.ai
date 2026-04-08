@@ -21,20 +21,54 @@ function randomProverb() {
   return PROVERBS[Math.floor(Math.random() * PROVERBS.length)];
 }
 
+function extractSummary(val: unknown): string {
+  if (typeof val === "string") {
+    try {
+      const parsed = JSON.parse(val);
+      // If JSON object with summary, return summary
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        const obj = parsed as Record<string, unknown>;
+        if (typeof obj.summary === "string") return obj.summary;
+        if (typeof obj.overall === "string") return obj.overall;
+        if (typeof obj.verdict === "string") return obj.verdict;
+      }
+      // If parsed is a string, return it
+      if (typeof parsed === "string") return parsed;
+      // Otherwise stringify briefly
+      return JSON.stringify(parsed).substring(0, 200);
+    } catch {
+      // Plain text
+      return val.substring(0, 300);
+    }
+  }
+  return String(val).substring(0, 200);
+}
+
 function buildContext(stock: Record<string, unknown>): string {
   const sections = [
-    "coreBusiness", "customerBase", "revenueModel",
-    "financials", "sevenPowers", "storyAndSCurve", "risks", "ceoProfile",
+    "coreBusiness", "financials", "risks",
   ];
-  return sections
-    .filter((s) => stock[s])
-    .map((s) => `## ${SECTION_LABELS[s as keyof typeof SECTION_LABELS]}\n${stock[s]}`)
-    .join("\n\n");
+  const parts: string[] = [];
+  let totalLen = 0;
+
+  for (const s of sections) {
+    if (!stock[s]) continue;
+    const label = SECTION_LABELS[s as keyof typeof SECTION_LABELS].split("/").pop()?.trim() || s;
+    const summary = extractSummary(stock[s]);
+    // Limit each section to 150 chars to stay within Typhoon token budget
+    const truncated = summary.length > 150 ? summary.substring(0, 150) + "..." : summary;
+    if (truncated && totalLen + truncated.length < 500) {
+      parts.push(`${label}: ${truncated}`);
+      totalLen += truncated.length;
+    }
+  }
+  return parts.join("\n");
 }
 
 export async function POST(req: Request) {
   try {
-    const { messages, stockId, symbol } = await req.json();
+    const body = await req.json();
+    const { messages, stockId, symbol } = body;
 
     if (!stockId || !messages) {
       return new Response("Missing stockId or messages", { status: 400 });
@@ -61,12 +95,10 @@ ${context}
 RULES:
 1. Only answer questions answerable from the above data
 2. Be concise, insightful, and strategic
-3. If a question is outside scope, respond with:
-   "${randomProverb()}
-
-   I can only speak to what the analysis reveals about ${symbol}. What would you like to know about its business model, financials, 7 Powers, S-Curve, risks, or CEO?"
+3. If a question is outside scope, politely redirect to the available data
 4. Use markdown for clarity (bold key terms, bullet lists)
-5. Never invent numbers or facts not in the data`;
+5. Never invent numbers or facts not in the data
+6. Respond in the same language the user uses`;
 
     // Filter messages: only keep valid user/assistant messages
     const validMessages = messages
@@ -82,22 +114,28 @@ RULES:
       return new Response("No messages to process", { status: 400 });
     }
 
-    const result = streamText({
-      model: typhoon(TYPHOON_MODEL),
-      system: systemPrompt,
-      messages: chatMessages,
-      temperature: 0.6,
-      topP: 0.6,
-      maxTokens: 512,
-      frequencyPenalty: 0,
-    });
+    console.log("[chat] Sending to Typhoon:", { symbol, msgCount: chatMessages.length, contextLen: context.length });
 
-    return result.toDataStreamResponse();
+    try {
+      const result = streamText({
+        model: typhoon(TYPHOON_MODEL),
+        system: systemPrompt,
+        messages: chatMessages,
+        temperature: 0.6,
+        topP: 0.6,
+        maxTokens: 8192,
+      });
+
+      return result.toDataStreamResponse();
+    } catch (streamErr) {
+      console.error("[chat] streamText error:", streamErr);
+      return Response.json({ error: "Stream error: " + (streamErr instanceof Error ? streamErr.message : String(streamErr)) }, { status: 500 });
+    }
   } catch (err) {
     console.error("[chat] Error:", err);
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+    return Response.json(
+      { error: err instanceof Error ? err.message : "Internal error" },
+      { status: 500 }
     );
   }
 }
