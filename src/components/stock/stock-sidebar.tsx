@@ -5,18 +5,18 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 const SECTIONS: SectionKey[] = [
-  "businessOverview",
-  "revenueStructure",
-  "financialHealth",
-  "growthStrategy",
-  "moat",
+  "coreBusiness",
+  "customerBase",
+  "revenueModel",
+  "financials",
+  "sevenPowers",
+  "storyAndSCurve",
   "risks",
-  "industryLandscape",
-  "strategistVerdict",
+  "ceoProfile",
 ];
 
 export function StockSidebar() {
-  const [active, setActive] = useState<SectionKey>("businessOverview");
+  const [active, setActive] = useState<SectionKey>("coreBusiness");
 
   useEffect(() => {
     const observer = new IntersectionObserver(

@@ -50,11 +50,13 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
         emerald: {
+          300: "#6ee7b7",
           400: "#34d399",
           500: "#10b981",
           600: "#059669",
         },
         gold: {
+          300: "#fcd34d",
           400: "#fbbf24",
           500: "#f59e0b",
           600: "#d97706",

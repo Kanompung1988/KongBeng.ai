@@ -11,7 +11,7 @@ const typhoon = createOpenAI({
 const TYPHOON_MODEL = "typhoon-v2.5-30b-a3b-instruct";
 
 const SYSTEM_PROMPT = `You are an AI assistant named Typhoon created by SCB 10X to be helpful, harmless, and honest.
-You are also "KongBeng AI" (Khongming AI) — a friendly and knowledgeable investment assistant.
+You are also "Khongbeng AI" (Khongming AI) — a friendly and knowledgeable investment assistant.
 
 Your personality:
 - You give clear, balanced investment analysis
@@ -33,23 +33,48 @@ You can help with:
 IMPORTANT RULES:
 - Always include a disclaimer that this is educational content, not financial advice
 - Never give specific buy/sell recommendations with price targets
-- If asked about a specific stock, suggest the user check the analysis page on KongBeng for detailed data
+- If asked about a specific stock, suggest the user check the analysis page on Khongbeng for detailed data
 - Respond in the same language the user uses (Thai or English)
 - Keep responses concise and actionable
 - Use markdown for formatting when helpful`;
 
 export async function POST(req: Request) {
-  const { messages } = await req.json();
+  try {
+    const { messages } = await req.json();
 
-  const result = streamText({
-    model: typhoon(TYPHOON_MODEL),
-    system: SYSTEM_PROMPT,
-    messages: messages.slice(1), // skip welcome message
-    temperature: 0.7,
-    topP: 0.7,
-    maxTokens: 600,
-    frequencyPenalty: 0,
-  });
+    if (!messages || !Array.isArray(messages)) {
+      return new Response("Missing messages", { status: 400 });
+    }
 
-  return result.toDataStreamResponse();
+    // Filter and skip welcome message
+    const validMessages = messages
+      .filter((m: { role: string; content: string }) => m.role === "user" || m.role === "assistant")
+      .filter((m: { content: string }) => m.content && m.content.trim().length > 0);
+
+    const chatMessages = validMessages.length > 0 && validMessages[0].role === "assistant"
+      ? validMessages.slice(1)
+      : validMessages;
+
+    if (chatMessages.length === 0) {
+      return new Response("No messages to process", { status: 400 });
+    }
+
+    const result = streamText({
+      model: typhoon(TYPHOON_MODEL),
+      system: SYSTEM_PROMPT,
+      messages: chatMessages,
+      temperature: 0.7,
+      topP: 0.7,
+      maxTokens: 600,
+      frequencyPenalty: 0,
+    });
+
+    return result.toDataStreamResponse();
+  } catch (err) {
+    console.error("[general-chat] Error:", err);
+    return new Response(
+      JSON.stringify({ error: err instanceof Error ? err.message : "Internal error" }),
+      { status: 500, headers: { "Content-Type": "application/json" } }
+    );
+  }
 }

@@ -104,7 +104,7 @@ export function ActiveUsersPanel() {
 
 function getVisitorId(): string {
   if (typeof window === "undefined") return "ssr";
-  const key = "kongbeng_visitor_id";
+  const key = "khongbeng_visitor_id";
   let id = localStorage.getItem(key);
   if (!id) {
     id = `v_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;

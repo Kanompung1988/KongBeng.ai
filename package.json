@@ -11,7 +11,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx scripts/seed-stocks.ts"
+    "db:seed": "tsx scripts/seed-stocks.ts",
+    "db:populate": "tsx scripts/populate-all-stocks.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.0.0",
@@ -42,6 +43,7 @@
     "openai": "^4.80.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
     "recharts": "^2.13.0",
     "satori": "^0.11.0",
     "sharp": "^0.33.0",
@@ -60,6 +62,7 @@
     "postcss": "^8.4.0",
     "prisma": "^6.0.0",
     "tailwindcss": "^3.4.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.7.0"
   }
 }

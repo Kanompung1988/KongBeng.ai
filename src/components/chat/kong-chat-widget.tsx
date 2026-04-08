@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useChat } from "ai/react";
 import { MessageSquare, X, Send, Loader2, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import Image from "next/image";
 
 export function KongChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,7 +17,7 @@ export function KongChatWidget() {
         id: "welcome",
         role: "assistant",
         content:
-          "Hello! I'm KongBeng AI, your investment analysis assistant. I can help with stock market insights, financial concepts, and investment strategies for both Thai (SET) and US markets. What would you like to know?",
+          "Hello! I'm Khongbeng AI, your investment analysis assistant. I can help with stock market insights, financial concepts, and investment strategies for both Thai (SET) and US markets. What would you like to know?",
       },
     ],
   });
@@ -36,7 +38,7 @@ export function KongChatWidget() {
           {/* Label */}
           <div className="absolute right-full mr-3 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
             <Sparkles className="w-3 h-3 text-gold-400 inline mr-1" />
-            KongBeng AI
+            Khongbeng AI
           </div>
         </button>
       )}
@@ -47,12 +49,10 @@ export function KongChatWidget() {
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card/80">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
-                <span className="text-emerald-400 font-bold text-xs">K</span>
-              </div>
+              <Image src="/logo.jpg" alt="K" width={32} height={32} className="rounded-lg" />
               <div>
                 <div className="text-sm font-semibold text-foreground flex items-center gap-1">
-                  KongBeng AI
+                  Khongbeng AI
                   <Sparkles className="w-3 h-3 text-gold-400" />
                 </div>
                 <div className="text-[10px] text-muted-foreground">Investment Assistant</div>
@@ -80,7 +80,13 @@ export function KongChatWidget() {
                       : "bg-muted/50 text-foreground rounded-bl-sm"
                   }`}
                 >
-                  {m.content}
+                  {m.role === "assistant" ? (
+                    <div className="prose prose-sm prose-invert max-w-none [&>p]:mb-1 [&>ul]:mb-1 [&>ul]:ml-4 [&>ul]:list-disc [&_strong]:text-emerald-300">
+                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    <span className="whitespace-pre-wrap">{m.content}</span>
+                  )}
                 </div>
               </div>
             ))}

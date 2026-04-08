@@ -1,4 +1,4 @@
-// Typhoon AI — drop-in replacement for Gemini
+// Typhoon AI — stock analysis engine for Khongbeng Strategist
 // Uses OpenAI-compatible API at opentyphoon.ai
 import OpenAI from "openai";
 import type { AIFetchResult } from "@/types";
@@ -14,72 +14,125 @@ function getClient() {
 const TYPHOON_MODEL = "typhoon-v2.5-30b-a3b-instruct";
 
 const SYSTEM_PROMPT = `You are an AI assistant named Typhoon created by SCB 10X to be helpful, harmless, and honest.
-You are also "KongBeng Strategist" — a world-class investment analyst with the strategic clarity of Sun Tzu, the financial rigor of Warren Buffett, and the macro insight of Ray Dalio.
+You are also "Khongbeng Strategist" — a world-class investment analyst with deep expertise in fundamental analysis, competitive strategy (Hamilton Helmer's 7 Powers), and CEO execution assessment.
 
 Your stock analysis must be:
-- Factual, data-driven, and sourced from the latest annual reports (10-K / 56-1 One Report)
-- Written in a "strategic and insightful" tone — not generic, not vague
+- Factual, data-driven, and sourced from the latest annual reports (10-K / 56-1 One Report), earnings calls, and Investor Relations materials
+- Written in a clear, insightful tone — not generic, not vague
 - Organized into exactly the 8 JSON fields below
-- Confident and decisive, like a master strategist advising a general
+- For Thai stocks (SET): write analysis in Thai
+- For US stocks (NYSE/NASDAQ): write analysis in English
 
 Typhoon responds directly without unnecessary affirmations or filler phrases.
 Return ONLY valid JSON, no markdown fences, no extra text.`;
 
 const ANALYSIS_SCHEMA = `{
-  "businessOverview": "string — 3-4 paragraphs covering: what the company does, its core business model, key markets, and strategic position",
-  "revenueStructure": {
-    "segments": [{"name": "string", "percentage": number, "amount": number, "currency": "THB|USD", "color": "#hex"}],
-    "totalRevenue": number,
+  "coreBusiness": {
+    "summary": "string — อธิบายธุรกิจให้เข้าใจง่ายว่าบริษัททำอะไร ใน 2-3 paragraphs",
+    "businessUnits": [
+      {"name": "string", "description": "string — อธิบายสั้นๆ", "revenuePercentage": number, "color": "#hex"}
+    ],
+    "totalRevenue": "string — e.g. '150 billion THB' or '$50 billion'",
+    "fiscalYear": "string — e.g. '2024'"
+  },
+  "customerBase": {
+    "model": "string — e.g. 'B2B', 'B2C', 'B2B2C'",
+    "description": "string — อธิบาย customer model ใน 1-2 paragraphs",
+    "customerSegments": [
+      {"name": "string", "percentage": number, "description": "string"}
+    ],
+    "stickiness": [
+      {"factor": "string — ชื่อ factor", "description": "string — อธิบายว่าทำไม sticky", "strength": "high|medium|low"}
+    ],
+    "summary": "string — สรุป customer base strength"
+  },
+  "revenueModel": {
+    "revenueTypes": [
+      {"type": "string — e.g. 'Recurring', 'Subscription', 'Backlog', 'One-Time', 'Transaction Fee'", "percentage": number, "description": "string", "color": "#hex"}
+    ],
+    "qualitySummary": "string — สรุปคุณภาพรายได้",
+    "revenueEvolution": "string — 1-2 paragraphs on future revenue direction",
+    "keyMetrics": [{"label": "string", "value": "string"}]
+  },
+  "financials": {
+    "years": ["2020", "2021", "2022", "2023", "2024"],
+    "revenue": [number, number, number, number, number],
+    "netProfit": [number, number, number, number, number],
+    "operatingExpenses": [number, number, number, number, number],
+    "cashOnHand": [number, number, number, number, number],
+    "totalDebt": [number, number, number, number, number],
+    "dividendYield": [number, number, number, number, number],
     "currency": "THB|USD",
-    "fiscalYear": "string",
-    "note": "string"
+    "unit": "million|billion",
+    "keyTakeawayRatios": [
+      {"name": "string — e.g. 'Retention Rate'", "value": "string — e.g. '95%'", "explanation": "string", "relevance": "string — why this ratio matters for THIS specific business model"}
+    ],
+    "summary": "string — สรุปภาพรวมงบการเงิน"
   },
-  "financialHealth": {
-    "pe": number,
-    "pb": number,
-    "roe": number,
-    "roa": number,
-    "debtToEquity": number,
-    "dividendYield": number,
-    "eps": number,
-    "marketCap": number,
-    "currency": "string",
-    "currentRatio": number,
-    "grossMargin": number,
-    "netMargin": number,
-    "revenueGrowthYoY": number,
-    "fiscalYear": "string",
-    "lastUpdated": "ISO date string"
+  "sevenPowers": {
+    "powers": [
+      {"name": "Scale Economies", "level": "high|medium|low", "score": 1-5, "analysis": "string"},
+      {"name": "Network Economies", "level": "high|medium|low", "score": 1-5, "analysis": "string"},
+      {"name": "Counter-Positioning", "level": "high|medium|low", "score": 1-5, "analysis": "string"},
+      {"name": "Switching Costs", "level": "high|medium|low", "score": 1-5, "analysis": "string"},
+      {"name": "Branding", "level": "high|medium|low", "score": 1-5, "analysis": "string"},
+      {"name": "Cornered Resource", "level": "high|medium|low", "score": 1-5, "analysis": "string"},
+      {"name": "Process Power", "level": "high|medium|low", "score": 1-5, "analysis": "string"}
+    ],
+    "summary": "string — สรุปว่า Power ไหนแข็งแกร่งที่สุด"
   },
-  "growthStrategy": "string — 3-4 paragraphs on expansion plans, capex allocation, M&A targets, and digital transformation",
-  "moat": "string — 3-4 paragraphs on sustainable competitive advantages: brand, distribution, cost leadership, network effects, IP",
-  "risks": "string — 3-4 paragraphs covering macro risks, competitive threats, regulatory exposure, and key man risk",
-  "industryLandscape": "string — 3-4 paragraphs on sector dynamics, TAM, key competitors, disruption threats, and tailwinds",
-  "strategistVerdict": {
-    "score": number,
-    "rating": "STRONG BUY|BUY|HOLD|REDUCE|SELL",
-    "summary": "string — 2-3 decisive sentences summarizing the investment thesis",
-    "bullPoints": ["string", "string", "string"],
-    "bearPoints": ["string", "string"],
-    "targetPrice": number,
-    "currency": "string",
-    "timeHorizon": "12 months"
+  "storyAndSCurve": {
+    "currentStory": "string — 2-3 paragraphs on company's current growth narrative",
+    "newSCurves": [
+      {"title": "string", "description": "string", "potential": "high|medium|low"}
+    ],
+    "hiddenGems": [
+      {"title": "string", "description": "string — สิ่งที่ตลาดอาจยังมองไม่เห็น"}
+    ],
+    "summary": "string"
+  },
+  "risks": {
+    "risks": [
+      {"title": "string", "severity": "high|medium|low", "description": "string", "mitigation": "string — วิธีรับมือหรือปัจจัยบรรเทา"}
+    ],
+    "summary": "string — สรุปความเสี่ยงหลัก"
+  },
+  "ceoProfile": {
+    "name": "string — ชื่อ CEO",
+    "title": "string — ตำแหน่ง",
+    "background": "string — ประวัติคร่าวๆ 1-2 paragraphs",
+    "executionTrackRecord": [
+      {"claim": "string — สิ่งที่ CEO พูดหรือสัญญา", "result": "string — สิ่งที่เกิดขึ้นจริง", "verdict": "delivered|partial|missed", "source": "string — e.g. 'Earnings Call Q3 2024' or '56-1 One Report 2024'"}
+    ],
+    "earningsCallHighlights": ["string — key quotes or highlights from recent earnings calls"],
+    "beatMissRecord": [
+      {"metric": "string — e.g. 'Revenue'", "target": "string — เป้าที่ตั้งไว้", "actual": "string — ตัวเลขจริง", "verdict": "beat|meet|miss"}
+    ],
+    "summary": "string — สรุปว่า CEO execute ดีแค่ไหน Make Sense ไหม"
   }
 }`;
 
 export async function fetchStockAnalysis(symbol: string): Promise<AIFetchResult> {
   const userPrompt = `Analyze the stock with ticker symbol: ${symbol.toUpperCase()}
 
-Search for the most recent:
+Search for the most recent data from:
 1. Annual report (10-K for US stocks, 56-1 One Report for Thai SET stocks)
-2. Latest quarterly earnings
-3. Recent analyst reports and news (last 6 months)
+2. Latest quarterly earnings and earnings call transcripts
+3. Investor Relations materials and presentations
+4. Financial statements for the past 5 years (2020-2024)
+5. CEO statements and execution track record
+6. Hamilton Helmer's 7 Powers framework applied to this company
 
 Fill in this exact JSON schema with real, accurate data:
 ${ANALYSIS_SCHEMA}
 
-For the revenueStructure colors, use a palette that fits a dark fintech theme:
-["#10b981", "#f59e0b", "#3b82f6", "#8b5cf6", "#ef4444", "#06b6d4", "#f97316"]
+IMPORTANT:
+- For the coreBusiness.businessUnits colors, use: ["#10b981", "#f59e0b", "#3b82f6", "#8b5cf6", "#ef4444", "#06b6d4", "#f97316"]
+- For the revenueModel.revenueTypes colors, use: ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444"]
+- All financial numbers should be actual figures (not made up). Use the currency and unit appropriate for the stock's market.
+- For 7 Powers: analyze ALL 7 powers. Score each from 1-5. Be honest — if a power is weak, say so.
+- For CEO: reference specific earnings calls or reports where possible. Assess if the CEO's story makes sense and has materialized.
+- keyTakeawayRatios should be business-model specific (e.g. for subscription businesses: Retention Rate, CAC/LTV; for banks: NIM, NPL ratio)
 
 Return ONLY the JSON object. No markdown fences, no explanations.`;
 
@@ -91,7 +144,7 @@ Return ONLY the JSON object. No markdown fences, no explanations.`;
     ],
     temperature: 0.3,
     top_p: 0.6,
-    max_tokens: 4096,
+    max_tokens: 8192,
     frequency_penalty: 0,
   });
 
@@ -103,13 +156,15 @@ Return ONLY the JSON object. No markdown fences, no explanations.`;
 
   return {
     symbol: symbol.toUpperCase(),
-    businessOverview: parsed.businessOverview || "",
-    revenueStructure: JSON.stringify(parsed.revenueStructure || {}),
-    financialHealth: JSON.stringify(parsed.financialHealth || {}),
-    growthStrategy: parsed.growthStrategy || "",
-    moat: parsed.moat || "",
-    risks: parsed.risks || "",
-    industryLandscape: parsed.industryLandscape || "",
-    strategistVerdict: JSON.stringify(parsed.strategistVerdict || {}),
+    coreBusiness: JSON.stringify(parsed.coreBusiness || {}),
+    customerBase: JSON.stringify(parsed.customerBase || {}),
+    revenueModel: JSON.stringify(parsed.revenueModel || {}),
+    financials: JSON.stringify(parsed.financials || {}),
+    sevenPowers: JSON.stringify(parsed.sevenPowers || {}),
+    storyAndSCurve: JSON.stringify(parsed.storyAndSCurve || {}),
+    risks: JSON.stringify(parsed.risks || {}),
+    ceoProfile: JSON.stringify(parsed.ceoProfile || {}),
+    shareholders: parsed.shareholders ? JSON.stringify(parsed.shareholders) : undefined,
+    recentNews: parsed.recentNews ? JSON.stringify(parsed.recentNews) : undefined,
   };
 }

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Loader2, LogIn } from "lucide-react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -22,8 +23,8 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirect based on role — middleware handles admin vs user
-      router.push("/");
+      // Redirect to /admin — middleware will redirect non-admin users to /
+      router.push("/admin");
       router.refresh();
     }
   };
@@ -39,12 +40,10 @@ export default function LoginPage() {
       <div className="w-full max-w-sm relative z-10">
         <div className="text-center mb-8">
           <Link href="/" className="inline-block">
-            <div className="w-14 h-14 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center mx-auto mb-4 hover:bg-emerald-500/30 transition-colors">
-              <span className="text-emerald-400 font-bold text-2xl">K</span>
-            </div>
+            <Image src="/logo.jpg" alt="Khongbeng" width={64} height={64} className="mx-auto mb-4 rounded-xl" />
           </Link>
           <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
-          <p className="text-muted-foreground text-sm mt-1">Sign in to KongBeng Strategist</p>
+          <p className="text-muted-foreground text-sm mt-1">Sign in to Khongbeng Strategist</p>
         </div>
 
         <form onSubmit={handleLogin} className="glass-card p-6 space-y-4">
@@ -89,6 +88,11 @@ export default function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link href="/register" className="text-emerald-400 hover:text-emerald-300 transition-colors font-medium">
             Create Account
+          </Link>
+        </p>
+        <p className="text-center mt-3">
+          <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+            &larr; Back to Home
           </Link>
         </p>
       </div>

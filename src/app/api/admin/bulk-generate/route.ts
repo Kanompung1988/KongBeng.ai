@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   const stock = targetSymbol
     ? await prisma.stock.findUnique({ where: { symbol: targetSymbol } })
     : await prisma.stock.findFirst({
-        where: { businessOverview: null },
+        where: { coreBusiness: null },
         orderBy: { createdAt: "asc" },
       });
 
@@ -35,19 +35,21 @@ export async function POST(req: NextRequest) {
     await prisma.stock.update({
       where: { id: stock.id },
       data: {
-        businessOverview:  result.businessOverview,
-        revenueStructure:  result.revenueStructure as string ?? null,
-        financialHealth:   result.financialHealth  as string ?? null,
-        growthStrategy:    result.growthStrategy,
-        moat:              result.moat,
-        risks:             result.risks,
-        industryLandscape: result.industryLandscape,
-        strategistVerdict: result.strategistVerdict as string ?? null,
+        coreBusiness:   result.coreBusiness,
+        customerBase:   result.customerBase,
+        revenueModel:   result.revenueModel,
+        financials:     result.financials,
+        sevenPowers:    result.sevenPowers,
+        storyAndSCurve: result.storyAndSCurve,
+        risks:          result.risks,
+        ceoProfile:     result.ceoProfile,
+        shareholders:   result.shareholders ?? null,
+        recentNews:     result.recentNews ?? null,
       },
     });
 
     // Count remaining
-    const remaining = await prisma.stock.count({ where: { businessOverview: null } });
+    const remaining = await prisma.stock.count({ where: { coreBusiness: null } });
 
     return NextResponse.json({ done: false, processed: stock.symbol, remaining });
   } catch (err) {
@@ -61,7 +63,7 @@ export async function GET() {
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const total    = await prisma.stock.count();
-  const withAI   = await prisma.stock.count({ where: { businessOverview: { not: null } } });
+  const withAI   = await prisma.stock.count({ where: { coreBusiness: { not: null } } });
   const pending  = total - withAI;
 
   return NextResponse.json({ total, withAI, pending });

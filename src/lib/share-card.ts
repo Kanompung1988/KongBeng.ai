@@ -1,14 +1,11 @@
-// Phase 4 — Prompt 8: Share Card Generator using Satori
-import type { StrategistVerdict } from "@/types";
-import { scoreToColor } from "./utils";
+// Share Card Generator — Khongbeng Strategist
 
 interface ShareCardOptions {
   symbol: string;
   stockName: string;
-  verdict: StrategistVerdict;
 }
 
-export async function generateShareCard({ symbol, stockName, verdict }: ShareCardOptions): Promise<void> {
+export async function generateShareCard({ symbol }: ShareCardOptions): Promise<void> {
   // Call the share card API endpoint which uses Satori on the server
   const res = await fetch(`/api/share-card?symbol=${symbol}`);
   if (!res.ok) throw new Error("Failed to generate share card");
@@ -19,7 +16,7 @@ export async function generateShareCard({ symbol, stockName, verdict }: ShareCar
   // Trigger download
   const a = document.createElement("a");
   a.href = url;
-  a.download = `kongbeng-${symbol.toLowerCase()}-analysis.png`;
+  a.download = `khongbeng-${symbol.toLowerCase()}-analysis.png`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

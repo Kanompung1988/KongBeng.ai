@@ -13,9 +13,17 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
 
 function isAdmin(email: string | undefined): boolean {
   if (!email) return false;
-  // If no ADMIN_EMAILS set, allow any authenticated user (backward compat)
   if (ADMIN_EMAILS.length === 0) return true;
   return ADMIN_EMAILS.includes(email.toLowerCase());
+}
+
+/** Create a redirect that preserves Set-Cookie headers from Supabase token refresh */
+function redirectWithCookies(url: URL, source: NextResponse): NextResponse {
+  const redirect = NextResponse.redirect(url);
+  source.cookies.getAll().forEach((cookie) => {
+    redirect.cookies.set(cookie.name, cookie.value);
+  });
+  return redirect;
 }
 
 export async function middleware(request: NextRequest) {
@@ -59,7 +67,7 @@ export async function middleware(request: NextRequest) {
       if (!user || !isAdmin(user.email)) {
         const url = request.nextUrl.clone();
         url.pathname = "/login";
-        return NextResponse.redirect(url);
+        return redirectWithCookies(url, supabaseResponse);
       }
     }
 
@@ -67,13 +75,13 @@ export async function middleware(request: NextRequest) {
     if ((request.nextUrl.pathname === "/login" || request.nextUrl.pathname === "/register") && user) {
       const url = request.nextUrl.clone();
       url.pathname = isAdmin(user.email) ? "/admin" : "/";
-      return NextResponse.redirect(url);
+      return redirectWithCookies(url, supabaseResponse);
     }
   } catch {
     if (request.nextUrl.pathname.startsWith("/admin")) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
-      return NextResponse.redirect(url);
+      return redirectWithCookies(url, supabaseResponse);
     }
   }
 

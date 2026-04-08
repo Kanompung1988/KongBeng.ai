@@ -1,5 +1,4 @@
-// Phase 1 — Prompt 2: Database Schema
-// Prisma schema for KongBeng stock analysis platform
+// Prisma schema for Khongbeng stock analysis platform
 
 generator client {
   provider = "prisma-client-js"
@@ -35,15 +34,19 @@ model Stock {
   exchange String  @default("SET")    // e.g. "SET", "NASDAQ", "NYSE"
   logoUrl String?                     // clearbit logo URL
 
-  // ── 8 Core Analysis Sections ────────────────────────────────────────────────
-  businessOverview   String? @db.Text  // What does the company do?
-  revenueStructure   String? @db.Text  // JSON: revenue breakdown by segment
-  financialHealth    String? @db.Text  // JSON: P/E, ROE, D/E, yield, EPS
-  growthStrategy     String? @db.Text  // Expansion plans, capex priorities
-  moat               String? @db.Text  // Competitive advantages
-  risks              String? @db.Text  // Key risks and mitigation
-  industryLandscape  String? @db.Text  // Sector trends, TAM, competition
-  strategistVerdict  String? @db.Text  // JSON: score (1-10), summary, bullets
+  // ── 8 Core Analysis Sections (New) ────────────────────────────────────────
+  coreBusiness   String? @db.Text  // JSON: ธุรกิจหลัก + BU pie chart data
+  customerBase   String? @db.Text  // JSON: ฐานลูกค้า + stickiness
+  revenueModel   String? @db.Text  // JSON: Model รายได้ + quality
+  financials     String? @db.Text  // JSON: งบการเงิน 5 ปี + charts
+  sevenPowers    String? @db.Text  // JSON: 7 Powers analysis + radar
+  storyAndSCurve String? @db.Text  // JSON: Story & S-Curve + hidden gems
+  risks          String? @db.Text  // JSON: ความเสี่ยง
+  ceoProfile     String? @db.Text  // JSON: CEO Profile & Execution
+
+  // ── Optional Sections ─────────────────────────────────────────────────────
+  shareholders   String? @db.Text  // JSON: รายชื่อผู้ถือหุ้น
+  recentNews     String? @db.Text  // JSON: ข่าวล่าสุด
 
   // ── Meta ────────────────────────────────────────────────────────────────────
   isPublished Boolean  @default(false)
@@ -57,6 +60,7 @@ model Stock {
   // Indexes
   @@index([symbol])
   @@index([sector])
+  @@index([exchange])
   @@index([isPublished])
   @@map("stocks")
 }

@@ -1,5 +1,5 @@
 "use server";
-// Phase 2 — Prompt 4: Server Actions for Admin
+// Server Actions for Khongbeng Admin
 import { prisma } from "@/lib/prisma";
 import { fetchStockAnalysis } from "@/lib/typhoon";
 import { createClient } from "@/lib/supabase/server";
@@ -29,14 +29,17 @@ export async function saveStockAction(
     sector: data.sector as string,
     exchange: data.exchange as string,
     isPublished: data.isPublished as boolean,
-    businessOverview: data.businessOverview as string || null,
-    revenueStructure: data.revenueStructure as string || null,
-    financialHealth: data.financialHealth as string || null,
-    growthStrategy: data.growthStrategy as string || null,
-    moat: data.moat as string || null,
+    logoUrl: data.logoUrl as string || null,
+    coreBusiness: data.coreBusiness as string || null,
+    customerBase: data.customerBase as string || null,
+    revenueModel: data.revenueModel as string || null,
+    financials: data.financials as string || null,
+    sevenPowers: data.sevenPowers as string || null,
+    storyAndSCurve: data.storyAndSCurve as string || null,
     risks: data.risks as string || null,
-    industryLandscape: data.industryLandscape as string || null,
-    strategistVerdict: data.strategistVerdict as string || null,
+    ceoProfile: data.ceoProfile as string || null,
+    shareholders: data.shareholders as string || null,
+    recentNews: data.recentNews as string || null,
     updatedById: adminUser.id,
   };
 
@@ -88,7 +91,6 @@ export async function fetchAIDataAction(symbol: string): Promise<Omit<AIFetchRes
   if (!user) throw new Error("Unauthorized");
 
   const result = await fetchStockAnalysis(symbol);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { symbol: _unused, ...rest } = result;
+  const { symbol: _s, ...rest } = result;
   return rest;
 }

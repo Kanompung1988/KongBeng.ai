@@ -1,6 +1,17 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { RevenueStructureData, FinancialRatios, StrategistVerdict } from "@/types";
+import type {
+  CoreBusinessData,
+  CustomerBaseData,
+  RevenueModelData,
+  FinancialsData,
+  SevenPowersData,
+  StorySCurveData,
+  RisksData,
+  CeoProfileData,
+  ShareholdersData,
+  RecentNewsData,
+} from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -16,19 +27,45 @@ export function safeJsonParse<T>(json: string | null | undefined, fallback: T): 
   }
 }
 
-// Parse revenue structure from DB text field
-export function parseRevenueStructure(raw: string | null | undefined): RevenueStructureData | null {
-  return safeJsonParse<RevenueStructureData | null>(raw, null);
+// ─── Section Parsers ─────────────────────────────────────────────────────────
+export function parseCoreBusiness(raw: string | null | undefined): CoreBusinessData | null {
+  return safeJsonParse<CoreBusinessData | null>(raw, null);
 }
 
-// Parse financial health from DB text field
-export function parseFinancialHealth(raw: string | null | undefined): FinancialRatios | null {
-  return safeJsonParse<FinancialRatios | null>(raw, null);
+export function parseCustomerBase(raw: string | null | undefined): CustomerBaseData | null {
+  return safeJsonParse<CustomerBaseData | null>(raw, null);
 }
 
-// Parse strategist verdict from DB text field
-export function parseStrategistVerdict(raw: string | null | undefined): StrategistVerdict | null {
-  return safeJsonParse<StrategistVerdict | null>(raw, null);
+export function parseRevenueModel(raw: string | null | undefined): RevenueModelData | null {
+  return safeJsonParse<RevenueModelData | null>(raw, null);
+}
+
+export function parseFinancials(raw: string | null | undefined): FinancialsData | null {
+  return safeJsonParse<FinancialsData | null>(raw, null);
+}
+
+export function parseSevenPowers(raw: string | null | undefined): SevenPowersData | null {
+  return safeJsonParse<SevenPowersData | null>(raw, null);
+}
+
+export function parseStorySCurve(raw: string | null | undefined): StorySCurveData | null {
+  return safeJsonParse<StorySCurveData | null>(raw, null);
+}
+
+export function parseRisks(raw: string | null | undefined): RisksData | null {
+  return safeJsonParse<RisksData | null>(raw, null);
+}
+
+export function parseCeoProfile(raw: string | null | undefined): CeoProfileData | null {
+  return safeJsonParse<CeoProfileData | null>(raw, null);
+}
+
+export function parseShareholders(raw: string | null | undefined): ShareholdersData | null {
+  return safeJsonParse<ShareholdersData | null>(raw, null);
+}
+
+export function parseRecentNews(raw: string | null | undefined): RecentNewsData | null {
+  return safeJsonParse<RecentNewsData | null>(raw, null);
 }
 
 // Format large numbers (THB / USD)
@@ -61,26 +98,6 @@ export function formatPercent(value: number | undefined | null): string {
   return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 
-// Score to color mapping
-export function scoreToColor(score: number): string {
-  if (score >= 8) return "text-emerald-400";
-  if (score >= 6) return "text-gold-400";
-  if (score >= 4) return "text-orange-400";
-  return "text-red-400";
-}
-
-// Rating to badge class
-export function ratingToBadgeClass(rating: string): string {
-  switch (rating) {
-    case "STRONG BUY": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-    case "BUY":        return "bg-emerald-600/20 text-emerald-400 border-emerald-600/30";
-    case "HOLD":       return "bg-gold-500/20 text-gold-300 border-gold-500/30";
-    case "REDUCE":     return "bg-orange-500/20 text-orange-300 border-orange-500/30";
-    case "SELL":       return "bg-red-500/20 text-red-300 border-red-500/30";
-    default:           return "bg-muted text-muted-foreground border-border";
-  }
-}
-
 // Truncate text
 export function truncate(text: string, maxLength: number): string {
   if (text.length <= maxLength) return text;
@@ -96,5 +113,33 @@ export function exchangeFlag(exchange: string): string {
     case "SGX":    return "🇸🇬";
     case "HKEX":   return "🇭🇰";
     default:       return "🌐";
+  }
+}
+
+// Severity/level to color
+export function levelToColor(level: "high" | "medium" | "low"): string {
+  switch (level) {
+    case "high": return "text-red-400";
+    case "medium": return "text-gold-400";
+    case "low": return "text-emerald-400";
+  }
+}
+
+export function levelToBadgeClass(level: "high" | "medium" | "low"): string {
+  switch (level) {
+    case "high": return "bg-red-500/20 text-red-300 border-red-500/30";
+    case "medium": return "bg-gold-500/20 text-gold-300 border-gold-500/30";
+    case "low": return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+  }
+}
+
+export function verdictToColor(verdict: "delivered" | "partial" | "missed" | "beat" | "meet" | "miss"): string {
+  switch (verdict) {
+    case "delivered":
+    case "beat": return "text-emerald-400";
+    case "partial":
+    case "meet": return "text-gold-400";
+    case "missed":
+    case "miss": return "text-red-400";
   }
 }

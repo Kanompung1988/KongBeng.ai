@@ -11,11 +11,10 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-async function getFeaturedStocks() {
-  return prisma.stock.findMany({
+async function getAllStocks() {
+  const stocks = await prisma.stock.findMany({
     where: { isPublished: true },
-    orderBy: { viewCount: "desc" },
-    take: 6,
+    orderBy: { symbol: "asc" },
     select: {
       id: true,
       symbol: true,
@@ -23,13 +22,17 @@ async function getFeaturedStocks() {
       sector: true,
       exchange: true,
       logoUrl: true,
-      strategistVerdict: true,
     },
   });
+
+  const thaiStocks = stocks.filter((s) => s.exchange === "SET");
+  const usStocks = stocks.filter((s) => s.exchange !== "SET");
+
+  return { thaiStocks, usStocks };
 }
 
 export default async function HomePage() {
-  const featuredStocks = await getFeaturedStocks();
+  const { thaiStocks, usStocks } = await getAllStocks();
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
@@ -48,7 +51,7 @@ export default async function HomePage() {
         <SearchCommand />
       </Suspense>
 
-      <FeaturedStocks stocks={featuredStocks} />
+      <FeaturedStocks thaiStocks={thaiStocks} usStocks={usStocks} />
 
       <FeatureGrid />
 

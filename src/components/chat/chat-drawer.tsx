@@ -1,8 +1,9 @@
-// Phase 4 — Prompt 7: KongBeng AI Chatbot with RAG
+// Khongbeng AI Chatbot with RAG + persistence
 "use client";
-import { useState, useRef, useEffect } from "react";
-import { useChat } from "ai/react";
-import { Sword, X, Send, Loader2, MessageCircle } from "lucide-react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useChat, type Message } from "ai/react";
+import { Sword, X, Send, Loader2, Trash2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import type { StockWithAdmin } from "@/types";
 
@@ -10,29 +11,101 @@ interface Props {
   stock: StockWithAdmin;
 }
 
-const STRATEGIC_PROVERBS = [
-  "As Sun Tzu said: 'Know your enemy and know yourself.' Let me guide you back to the data.",
-  "The strategist who chases two rabbits catches neither. Let us focus on what matters.",
-  "A sword is only useful if you know your battlefield. Shall we return to the analysis?",
-];
+function getSessionId(stockId: string): string {
+  const key = `kb_chat_${stockId}`;
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem(key);
+  if (!id) {
+    id = `${stockId}_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    localStorage.setItem(key, id);
+  }
+  return id;
+}
+
+function makeWelcome(symbol: string, name: string): Message {
+  return {
+    id: "welcome",
+    role: "assistant",
+    content: `Greetings, Strategist. I am the Khongbeng AI, deeply versed in the analysis of **${symbol} — ${name}**.\n\nAsk me anything about its business model, financials, 7 Powers, risks, or CEO. ⚔️`,
+  };
+}
 
 export function ChatDrawer({ stock }: Props) {
   const [open, setOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sessionIdRef = useRef("");
 
-  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+  const welcome = makeWelcome(stock.symbol, stock.name);
+
+  const {
+    messages, input, handleInputChange, handleSubmit, isLoading, setMessages,
+  } = useChat({
     api: "/api/chat",
     body: { stockId: stock.id, symbol: stock.symbol },
-    initialMessages: [
-      {
-        id: "welcome",
-        role: "assistant",
-        content: `Greetings, Strategist. I am the KongBeng AI, deeply versed in the analysis of **${stock.symbol} — ${stock.name}**.\n\nAsk me anything about its business model, financials, growth strategy, risks, or investment thesis. My knowledge is confined to this analysis — and that is precisely its power. ⚔️`,
-      },
-    ],
+    initialMessages: [welcome],
+    onFinish: (message) => {
+      // Save assistant reply to DB (fire and forget)
+      const sid = sessionIdRef.current;
+      if (sid) {
+        fetch("/api/chat/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sid, stockId: stock.id, role: "assistant", content: message.content }),
+        }).catch(() => {});
+      }
+    },
   });
 
-  // Auto-scroll to latest message
+  // Load history once when drawer first opens
+  const historyLoaded = useRef(false);
+  const loadHistory = useCallback(async () => {
+    if (historyLoaded.current) return;
+    historyLoaded.current = true;
+    const sid = getSessionId(stock.id);
+    sessionIdRef.current = sid;
+    if (!sid) return;
+    try {
+      const res = await fetch(`/api/chat/history?sessionId=${encodeURIComponent(sid)}`);
+      const data = await res.json();
+      if (data.messages?.length > 0) {
+        setMessages([welcome, ...data.messages]);
+      }
+    } catch {
+      // ignore
+    }
+  }, [stock.id, stock.symbol, stock.name, setMessages, welcome]);
+
+  useEffect(() => {
+    if (open) {
+      if (!sessionIdRef.current) {
+        sessionIdRef.current = getSessionId(stock.id);
+      }
+      loadHistory();
+    }
+  }, [open, loadHistory, stock.id]);
+
+  // Save user messages when submitting
+  const onSubmit: typeof handleSubmit = (e, opts) => {
+    const text = input.trim();
+    if (text && sessionIdRef.current) {
+      fetch("/api/chat/history", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionId: sessionIdRef.current, stockId: stock.id, role: "user", content: text }),
+      }).catch(() => {});
+    }
+    handleSubmit(e, opts);
+  };
+
+  // Clear chat
+  const handleClear = () => {
+    setMessages([welcome]);
+    localStorage.removeItem(`kb_chat_${stock.id}`);
+    historyLoaded.current = false;
+    sessionIdRef.current = "";
+  };
+
+  // Auto-scroll
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -60,7 +133,7 @@ export function ChatDrawer({ stock }: Props) {
           open ? "translate-x-0" : "translate-x-full"
         )}
       >
-        {/* Drawer Header */}
+        {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-card/80 backdrop-blur-sm">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
@@ -71,9 +144,18 @@ export function ChatDrawer({ stock }: Props) {
               <p className="text-xs text-muted-foreground">{stock.symbol} · RAG Analysis</p>
             </div>
           </div>
-          <button onClick={() => setOpen(false)} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground">
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={handleClear}
+              className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground"
+              title="Clear chat"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+            <button onClick={() => setOpen(false)} className="p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
@@ -93,13 +175,19 @@ export function ChatDrawer({ stock }: Props) {
               )}
               <div
                 className={cn(
-                  "rounded-2xl px-4 py-3 text-sm max-w-[85%] whitespace-pre-wrap leading-relaxed",
+                  "rounded-2xl px-4 py-3 text-sm max-w-[85%] leading-relaxed",
                   msg.role === "user"
                     ? "bg-emerald-500 text-white rounded-tr-sm"
                     : "bg-muted text-foreground rounded-tl-sm"
                 )}
               >
-                {msg.content}
+                {msg.role === "assistant" ? (
+                  <div className="prose prose-sm prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:ml-4 [&>ul]:list-disc [&>ol]:mb-2 [&>ol]:ml-4 [&>ol]:list-decimal [&_strong]:text-emerald-300">
+                    <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <span className="whitespace-pre-wrap">{msg.content}</span>
+                )}
               </div>
             </div>
           ))}
@@ -116,10 +204,7 @@ export function ChatDrawer({ stock }: Props) {
         </div>
 
         {/* Input */}
-        <form
-          onSubmit={handleSubmit}
-          className="px-4 py-4 border-t border-border bg-card/50"
-        >
+        <form onSubmit={onSubmit} className="px-4 py-4 border-t border-border bg-card/50">
           <div className="flex gap-2">
             <input
               value={input}

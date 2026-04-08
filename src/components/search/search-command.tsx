@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Search, TrendingUp, Clock } from "lucide-react";
 import {
   CommandDialog,
@@ -16,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { exchangeFlag } from "@/lib/utils";
 import type { SearchResult } from "@/types";
 
-const RECENT_KEY = "kongbeng_recent_searches";
+const RECENT_KEY = "khongbeng_recent_searches";
 
 export function SearchCommand() {
   const [open, setOpen] = useState(false);
@@ -147,7 +148,18 @@ function StockCommandItem({
       onClick={() => onSelect(stock)}
       className="flex items-center gap-3 py-3 cursor-pointer"
     >
-      {icon}
+      {stock.logoUrl ? (
+        <Image
+          src={stock.logoUrl}
+          alt={stock.symbol}
+          width={24}
+          height={24}
+          className="rounded bg-white p-0.5 shrink-0"
+          unoptimized
+        />
+      ) : (
+        icon
+      )}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-mono font-semibold text-foreground">{stock.symbol}</span>
