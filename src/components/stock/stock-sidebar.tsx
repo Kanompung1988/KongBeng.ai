@@ -73,7 +73,7 @@ export function StockSidebar() {
               : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
           )}
         >
-          {t(SECTION_I18N[key])}
+          {t(SECTION_I18N[key] as TranslationKey)}
         </button>
       ))}
     </div>
