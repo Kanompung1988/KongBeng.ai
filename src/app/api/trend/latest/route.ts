@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export async function GET() {
   const articles = await prisma.trendArticle.findMany({
@@ -10,7 +10,5 @@ export async function GET() {
     select: { id: true, title: true, titleTh: true, category: true },
   });
 
-  return NextResponse.json(articles, {
-    headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" },
-  });
+  return NextResponse.json(articles);
 }

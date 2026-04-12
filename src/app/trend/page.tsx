@@ -6,7 +6,7 @@ import { TrendCard } from "@/components/trend/trend-card";
 import { TrendFilters } from "@/components/trend/trend-filters";
 import { TrendingUp } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // articles generated at most once/day
 
 export const metadata = {
   title: "Khongbeng News — Investment News",

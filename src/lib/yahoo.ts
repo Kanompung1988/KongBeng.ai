@@ -46,7 +46,7 @@ export async function getQuote(symbol: string, exchange: string): Promise<QuoteD
   try {
     const res = await fetch(
       `${BASE}/quote?symbol=${encodeURIComponent(fSym)}&token=${FINNHUB_API_KEY}`,
-      { cache: "no-store" }
+      { next: { revalidate: 300 } } // 5-min cache shared across serverless instances
     );
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const q = await res.json();
@@ -136,7 +136,7 @@ export async function getChart(
 
   try {
     const url = `${BASE}/stock/candle?symbol=${encodeURIComponent(fSym)}&resolution=${resolution}&from=${from}&to=${now}&token=${FINNHUB_API_KEY}`;
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(url, { next: { revalidate: 900 } }); // 15-min cache for chart data
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 

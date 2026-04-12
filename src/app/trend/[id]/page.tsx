@@ -6,7 +6,7 @@ import { TrendArticleContent } from "@/components/trend/trend-article-content";
 import { ArrowLeft, Clock } from "lucide-react";
 import Link from "next/link";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // articles never change after generation
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -10,7 +10,8 @@ import { ActiveUsersPanel } from "@/components/presence/active-users-panel";
 import { TrendTicker } from "@/components/trend/trend-ticker";
 import { prisma } from "@/lib/prisma";
 
-export const dynamic = "force-dynamic";
+// Revalidate every 60s — data only changes when admin publishes/unpublishes
+export const revalidate = 60;
 
 async function getAllStocks() {
   const stocks = await prisma.stock.findMany({
@@ -33,14 +34,15 @@ async function getAllStocks() {
 }
 
 export default async function HomePage() {
-  const { thaiStocks, usStocks } = await getAllStocks();
-
-  // Fetch latest trend articles for ticker
-  const trendArticles = await prisma.trendArticle.findMany({
-    orderBy: { publishedAt: "desc" },
-    take: 8,
-    select: { id: true, title: true, titleTh: true, category: true },
-  });
+  // Parallel DB queries — both are independent
+  const [{ thaiStocks, usStocks }, trendArticles] = await Promise.all([
+    getAllStocks(),
+    prisma.trendArticle.findMany({
+      orderBy: { publishedAt: "desc" },
+      take: 8,
+      select: { id: true, title: true, titleTh: true, category: true },
+    }),
+  ]);
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">

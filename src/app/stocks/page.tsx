@@ -4,7 +4,7 @@ import { Footer } from "@/components/landing/footer";
 import { PublicStockTable } from "@/components/stocks/public-stock-table";
 import type { Metadata } from "next";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Stock Analysis — Khongbeng Strategist",
