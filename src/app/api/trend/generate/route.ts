@@ -162,8 +162,53 @@ export async function POST(req: Request) {
   }
 }
 
-// GET: status check
-export async function GET() {
+// GET: Vercel Cron trigger (requires CRON_SECRET) or status check (no auth)
+export async function GET(req: Request) {
+  const authHeader = req.headers.get("authorization");
+
+  // If cron secret provided, run generation
+  if (CRON_SECRET && authHeader === `Bearer ${CRON_SECRET}`) {
+    try {
+      const latest = await prisma.trendArticle.findFirst({
+        orderBy: { publishedAt: "desc" },
+        select: { publishedAt: true },
+      });
+
+      if (latest) {
+        const hoursSince = (Date.now() - latest.publishedAt.getTime()) / (1000 * 60 * 60);
+        if (hoursSince < 5) {
+          return Response.json({
+            skipped: true,
+            message: `Latest article is ${hoursSince.toFixed(1)}h old, skipping`,
+          });
+        }
+      }
+
+      const article = await generateArticle();
+      const saved = await prisma.trendArticle.create({
+        data: {
+          title: article.title,
+          titleTh: article.titleTh || null,
+          summary: article.summary,
+          summaryTh: article.summaryTh || null,
+          content: article.content,
+          contentTh: article.contentTh || null,
+          category: article.category,
+          tags: article.tags || [],
+          source: article.source || null,
+        },
+      });
+      return Response.json({ success: true, articleId: saved.id, title: saved.title });
+    } catch (err) {
+      console.error("[trend/generate GET] Error:", err);
+      return Response.json(
+        { error: err instanceof Error ? err.message : "Failed to generate article" },
+        { status: 500 }
+      );
+    }
+  }
+
+  // No auth — return status only
   const count = await prisma.trendArticle.count();
   const latest = await prisma.trendArticle.findFirst({
     orderBy: { publishedAt: "desc" },
