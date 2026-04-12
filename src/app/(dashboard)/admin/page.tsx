@@ -73,6 +73,12 @@ export default async function AdminPage() {
               <span className="hidden sm:inline">Home</span>
             </Link>
             <Link
+              href="/admin/members"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            >
+              <span className="hidden sm:inline">Members</span>
+            </Link>
+            <Link
               href="/admin/stocks/new"
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-semibold transition-all hover:shadow-lg hover:shadow-emerald-500/20"
             >

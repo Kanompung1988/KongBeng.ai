@@ -8,7 +8,7 @@ import type { AIFetchResult } from "@/types";
 
 // ── Save Stock ────────────────────────────────────────────────────────────────
 export async function saveStockAction(
-  data: Record<string, string | boolean>,
+  data: Record<string, string | boolean | string[]>,
   id?: string
 ) {
   const supabase = await createClient();
@@ -30,6 +30,7 @@ export async function saveStockAction(
     exchange: data.exchange as string,
     isPublished: data.isPublished as boolean,
     logoUrl: data.logoUrl as string || null,
+    marketIndexes: (data.marketIndexes as string[] | undefined) || [],
     coreBusiness: data.coreBusiness as string || null,
     customerBase: data.customerBase as string || null,
     revenueModel: data.revenueModel as string || null,
@@ -93,4 +94,82 @@ export async function fetchAIDataAction(symbol: string): Promise<Omit<AIFetchRes
   const result = await fetchStockAnalysis(symbol);
   const { symbol: _s, ...rest } = result;
   return rest;
+}
+
+// ── Portfolio Actions ─────────────────────────────────────────────────────────
+
+async function getOrCreatePortfolio(userId: string) {
+  let portfolio = await prisma.portfolio.findFirst({ where: { userId } });
+  if (!portfolio) {
+    portfolio = await prisma.portfolio.create({
+      data: { userId, name: "My Portfolio" },
+    });
+  }
+  return portfolio;
+}
+
+export async function addToPortfolioAction(
+  stockId: string,
+  symbol: string,
+  shares?: number,
+  avgCost?: number
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const portfolio = await getOrCreatePortfolio(user.id);
+
+  // Check if already exists
+  const existing = await prisma.portfolioItem.findUnique({
+    where: { portfolioId_stockId: { portfolioId: portfolio.id, stockId } },
+  });
+  if (existing) throw new Error("Stock already in portfolio");
+
+  await prisma.portfolioItem.create({
+    data: {
+      portfolioId: portfolio.id,
+      stockId,
+      symbol: symbol.toUpperCase(),
+      shares: shares ?? null,
+      avgCost: avgCost ?? null,
+    },
+  });
+
+  revalidatePath("/dashboard");
+}
+
+export async function removeFromPortfolioAction(itemId: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  // Verify ownership
+  const item = await prisma.portfolioItem.findUnique({
+    where: { id: itemId },
+    include: { portfolio: { select: { userId: true } } },
+  });
+  if (!item || item.portfolio.userId !== user.id) throw new Error("Not found");
+
+  await prisma.portfolioItem.delete({ where: { id: itemId } });
+  revalidatePath("/dashboard");
+}
+
+export async function updatePortfolioItemAction(
+  itemId: string,
+  data: { shares?: number | null; avgCost?: number | null; notes?: string | null }
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  // Verify ownership
+  const item = await prisma.portfolioItem.findUnique({
+    where: { id: itemId },
+    include: { portfolio: { select: { userId: true } } },
+  });
+  if (!item || item.portfolio.userId !== user.id) throw new Error("Not found");
+
+  await prisma.portfolioItem.update({ where: { id: itemId }, data });
+  revalidatePath("/dashboard");
 }

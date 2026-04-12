@@ -5,20 +5,31 @@ import { useChat } from "ai/react";
 import { MessageSquare, X, Send, Loader2, Sparkles } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import Image from "next/image";
+import { createClient } from "@/lib/supabase/client";
 
 export function KongChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Get auth user for portfolio access
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, []);
+
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: "/api/general-chat",
+    api: "/api/ai-chat",
+    body: { userId },
     initialMessages: [
       {
         id: "welcome",
         role: "assistant",
         content:
-          "Hello! I'm Khongbeng AI, your investment analysis assistant. I can help with stock market insights, financial concepts, and investment strategies for both Thai (SET) and US markets. What would you like to know?",
+          "Hello! I'm Khongbeng AI, your investment analysis assistant. I can help with stock analysis, live market data, news summaries, portfolio review, and investment strategies for both Thai (SET) and US markets. What would you like to know?",
       },
     ],
     onResponse: () => {
@@ -47,6 +58,7 @@ export function KongChatWidget() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
+          data-kong-chat-trigger
           className="fixed bottom-4 right-4 z-50 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center shadow-lg shadow-emerald-500/30 transition-all hover:scale-105 group"
         >
           <MessageSquare className="w-6 h-6" />
@@ -96,7 +108,7 @@ export function KongChatWidget() {
                   }`}
                 >
                   {m.role === "assistant" ? (
-                    <div className="prose prose-sm prose-invert max-w-none [&>p]:mb-1 [&>ul]:mb-1 [&>ul]:ml-4 [&>ul]:list-disc [&_strong]:text-emerald-300">
+                    <div className="prose prose-sm prose-theme max-w-none [&>p]:mb-1 [&>ul]:mb-1 [&>ul]:ml-4 [&>ul]:list-disc [&_strong]:text-emerald-300">
                       <ReactMarkdown>{m.content}</ReactMarkdown>
                     </div>
                   ) : (

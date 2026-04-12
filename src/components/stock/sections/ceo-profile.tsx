@@ -2,8 +2,8 @@
 import { UserCheck, CheckCircle, XCircle, MinusCircle } from "lucide-react";
 import Image from "next/image";
 import { SectionHeader } from "./core-business";
-import { parseCeoProfile, verdictToColor } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseCeoProfile, verdictToColor, getField, getFieldArray } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -21,6 +21,7 @@ const verdictIcons = {
 export function CeoProfileSection({ raw }: Props) {
   const data = parseCeoProfile(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   return (
@@ -38,7 +39,7 @@ export function CeoProfileSection({ raw }: Props) {
           )}
           <div>
             <h3 className="font-semibold text-foreground">{data.name}</h3>
-            <p className="text-xs text-muted-foreground">{data.title}</p>
+            <p className="text-xs text-muted-foreground">{getField(data, "title", lang)}</p>
           </div>
         </div>
 
@@ -46,7 +47,7 @@ export function CeoProfileSection({ raw }: Props) {
         {data.background && (
           <div className="space-y-2">
             <h3 className="text-sm font-semibold text-foreground">{t("stock.background")}</h3>
-            {data.background.split("\n").filter(Boolean).map((p, i) => (
+            {getField(data, "background", lang).split("\n").filter(Boolean).map((p, i) => (
               <p key={i} className="text-sm text-muted-foreground leading-relaxed">{p}</p>
             ))}
           </div>
@@ -63,8 +64,8 @@ export function CeoProfileSection({ raw }: Props) {
                   <div key={i} className="glass-card p-4 bg-muted/20">
                     <div className="flex items-start justify-between gap-3 mb-2">
                       <div className="flex-1">
-                        <p className="text-sm text-foreground font-medium">&ldquo;{track.claim}&rdquo;</p>
-                        <p className="text-xs text-muted-foreground mt-1">{track.result}</p>
+                        <p className="text-sm text-foreground font-medium">&ldquo;{getField(track, "claim", lang)}&rdquo;</p>
+                        <p className="text-xs text-muted-foreground mt-1">{getField(track, "result", lang)}</p>
                       </div>
                       <div className="flex items-center gap-1.5 shrink-0">
                         <Icon className={`w-4 h-4 ${verdictToColor(track.verdict)}`} />
@@ -100,7 +101,7 @@ export function CeoProfileSection({ raw }: Props) {
                     const Icon = verdictIcons[rec.verdict];
                     return (
                       <tr key={i} className="border-b border-border/30">
-                        <td className="py-2 px-3 font-medium text-foreground">{rec.metric}</td>
+                        <td className="py-2 px-3 font-medium text-foreground">{getField(rec, "metric", lang)}</td>
                         <td className="py-2 px-3 text-muted-foreground">{rec.target}</td>
                         <td className="py-2 px-3 text-muted-foreground">{rec.actual}</td>
                         <td className="py-2 px-3 text-right">
@@ -119,11 +120,11 @@ export function CeoProfileSection({ raw }: Props) {
         )}
 
         {/* Earnings Call Highlights */}
-        {data.earningsCallHighlights && data.earningsCallHighlights.length > 0 && (
+        {getFieldArray(data, "earningsCallHighlights", lang).length > 0 && (
           <div className="pt-4 border-t border-border/50">
             <h3 className="text-sm font-semibold text-foreground mb-3">{t("stock.earningsHighlights")}</h3>
             <div className="space-y-2">
-              {data.earningsCallHighlights.map((h, i) => (
+              {getFieldArray(data, "earningsCallHighlights", lang).map((h, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <span className="text-emerald-400 mt-1 shrink-0">&#8227;</span>
                   <p className="text-xs text-muted-foreground leading-relaxed">{h}</p>
@@ -137,7 +138,7 @@ export function CeoProfileSection({ raw }: Props) {
         {data.summary && (
           <div className="pt-4 border-t border-border/50">
             <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.ceoAssessment")}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "summary", lang)}</p>
           </div>
         )}
       </div>

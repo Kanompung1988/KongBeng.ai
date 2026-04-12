@@ -1,8 +1,8 @@
 "use client";
 import { AlertTriangle } from "lucide-react";
 import { SectionHeader } from "./core-business";
-import { parseRisks } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseRisks, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -23,6 +23,7 @@ const severityBorder = {
 export function RisksSection({ raw }: Props) {
   const data = parseRisks(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   return (
@@ -35,16 +36,16 @@ export function RisksSection({ raw }: Props) {
             className={`glass-card p-4 bg-muted/20 border-l-4 ${severityBorder[risk.severity]}`}
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-semibold text-foreground">{risk.title}</span>
+              <span className="text-sm font-semibold text-foreground">{getField(risk, "title", lang)}</span>
               <span className={`px-2 py-0.5 rounded text-xs font-semibold border ${severityColors[risk.severity]}`}>
                 {risk.severity.toUpperCase()}
               </span>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-2">{risk.description}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-2">{getField(risk, "description", lang)}</p>
             {risk.mitigation && (
               <div className="flex items-start gap-2 pt-2 border-t border-border/30">
                 <span className="text-emerald-400 text-xs shrink-0">Mitigation:</span>
-                <p className="text-xs text-muted-foreground">{risk.mitigation}</p>
+                <p className="text-xs text-muted-foreground">{getField(risk, "mitigation", lang)}</p>
               </div>
             )}
           </div>
@@ -53,7 +54,7 @@ export function RisksSection({ raw }: Props) {
         {/* Summary */}
         {data.summary && (
           <div className="pt-4 border-t border-border/50">
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "summary", lang)}</p>
           </div>
         )}
       </div>

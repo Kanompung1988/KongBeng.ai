@@ -1,8 +1,8 @@
 "use client";
 import { Building2 } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
-import { parseCoreBusiness } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseCoreBusiness, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 // Shared SectionHeader (re-exported for all sections)
 export function SectionHeader({ icon, title }: { icon: React.ReactNode; title: string }) {
@@ -23,6 +23,7 @@ interface Props {
 export function CoreBusinessSection({ raw }: Props) {
   const data = parseCoreBusiness(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   return (
@@ -31,7 +32,7 @@ export function CoreBusinessSection({ raw }: Props) {
       <div className="glass-card p-6 space-y-6">
         {/* Summary */}
         <div className="space-y-3">
-          {data.summary.split("\n").filter(Boolean).map((p, i) => (
+          {getField(data, "summary", lang).split("\n").filter(Boolean).map((p, i) => (
             <p key={i} className="text-muted-foreground leading-relaxed">{p}</p>
           ))}
         </div>
@@ -68,7 +69,7 @@ export function CoreBusinessSection({ raw }: Props) {
               </ResponsiveContainer>
               {data.totalRevenue && (
                 <p className="text-xs text-muted-foreground mt-2">
-                  {t("stock.totalRevenue")}: {data.totalRevenue} ({data.fiscalYear})
+                  {t("stock.totalRevenue")}: {getField(data, "totalRevenue", lang)} ({data.fiscalYear})
                 </p>
               )}
             </div>
@@ -84,7 +85,7 @@ export function CoreBusinessSection({ raw }: Props) {
                         className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: bu.color || DEFAULT_COLORS[i % DEFAULT_COLORS.length] }}
                       />
-                      <span className="text-sm font-medium text-foreground">{bu.name}</span>
+                      <span className="text-sm font-medium text-foreground">{getField(bu, "name", lang)}</span>
                     </div>
                     <span className="text-sm font-mono text-emerald-400">{bu.revenuePercentage}%</span>
                   </div>
@@ -98,7 +99,7 @@ export function CoreBusinessSection({ raw }: Props) {
                     />
                   </div>
                   {bu.description && (
-                    <p className="text-xs text-muted-foreground pl-5">{bu.description}</p>
+                    <p className="text-xs text-muted-foreground pl-5">{getField(bu, "description", lang)}</p>
                   )}
                 </div>
               ))}

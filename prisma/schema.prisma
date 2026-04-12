@@ -33,6 +33,7 @@ model Stock {
   sector String                       // e.g. "Consumer Staples"
   exchange String  @default("SET")    // e.g. "SET", "NASDAQ", "NYSE"
   logoUrl String?                     // clearbit logo URL
+  marketIndexes String[] @default([]) // e.g. ["SET50", "SP500", "NASDAQ100"]
 
   // ── 8 Core Analysis Sections (New) ────────────────────────────────────────
   coreBusiness   String? @db.Text  // JSON: ธุรกิจหลัก + BU pie chart data
@@ -71,10 +72,52 @@ model User {
   email     String   @unique
   name      String?
   avatarUrl String?  @map("avatar_url")
+  status    String   @default("pending") // "pending" | "approved" | "rejected"
+  approvedBy String? @map("approved_by")
+  approvedAt DateTime? @map("approved_at")
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  portfolios Portfolio[]
+  alerts     Alert[]
+
   @@map("users")
+}
+
+// ─── Portfolio (user stock watchlist / portfolio) ────────────────────────────
+model Portfolio {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String          @default("My Portfolio")
+  isWatchlist  Boolean         @default(false) @map("is_watchlist")
+  items       PortfolioItem[]
+  transactions Transaction[]
+  snapshots   PortfolioSnapshot[]
+  dividends   DividendRecord[]
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  @@unique([userId, name])
+  @@index([userId])
+  @@map("portfolios")
+}
+
+model PortfolioItem {
+  id          String    @id @default(cuid())
+  portfolioId String    @map("portfolio_id")
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  stockId     String    @map("stock_id")
+  symbol      String
+  shares      Float?
+  avgCost     Float?    @map("avg_cost")
+  notes       String?   @db.Text
+  addedAt     DateTime  @default(now()) @map("added_at")
+
+  @@unique([portfolioId, stockId])
+  @@index([portfolioId])
+  @@index([stockId])
+  @@map("portfolio_items")
 }
 
 // ─── Chat Sessions (for AI Chatbot) ──────────────────────────────────────────
@@ -135,4 +178,78 @@ model TrendArticle {
   @@index([publishedAt])
   @@index([category])
   @@map("trend_articles")
+}
+
+// ─── Transaction (buy/sell/dividend records) ─────────────────────────────────
+model Transaction {
+  id          String   @id @default(cuid())
+  portfolioId String   @map("portfolio_id")
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  stockId     String   @map("stock_id")
+  symbol      String
+  type        String   // "buy" | "sell" | "dividend"
+  shares      Float
+  price       Float
+  fees        Float    @default(0)
+  currency    String   @default("THB")
+  date        DateTime @default(now())
+  notes       String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([portfolioId])
+  @@index([stockId])
+  @@index([date])
+  @@map("transactions")
+}
+
+// ─── Portfolio Snapshot (daily value for historical chart) ───────────────────
+model PortfolioSnapshot {
+  id          String   @id @default(cuid())
+  portfolioId String   @map("portfolio_id")
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  totalValue  Float    @map("total_value")
+  totalCost   Float    @map("total_cost")
+  currency    String   @default("THB")
+  date        DateTime @default(now())
+  breakdown   String?  @db.Text // JSON: {symbol: value}[]
+
+  @@unique([portfolioId, date])
+  @@index([portfolioId, date])
+  @@map("portfolio_snapshots")
+}
+
+// ─── Price Alerts ────────────────────────────────────────────────────────────
+model Alert {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  symbol      String
+  targetPrice Float     @map("target_price")
+  direction   String    // "above" | "below"
+  isTriggered Boolean   @default(false) @map("is_triggered")
+  triggeredAt DateTime? @map("triggered_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([symbol])
+  @@map("alerts")
+}
+
+// ─── Dividend Records ────────────────────────────────────────────────────────
+model DividendRecord {
+  id          String    @id @default(cuid())
+  portfolioId String    @map("portfolio_id")
+  portfolio   Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  stockId     String    @map("stock_id")
+  symbol      String
+  amount      Float
+  perShare    Float?    @map("per_share")
+  exDate      DateTime? @map("ex_date")
+  payDate     DateTime? @map("pay_date")
+  currency    String    @default("THB")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([portfolioId])
+  @@index([stockId])
+  @@map("dividend_records")
 }

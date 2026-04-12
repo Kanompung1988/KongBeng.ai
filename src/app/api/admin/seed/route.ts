@@ -102,7 +102,11 @@ const US_STOCKS: StockSeed[] = [
 export async function POST() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  if (adminEmails.length === 0 || !adminEmails.includes(user.email.toLowerCase())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const allStocks = [...THAI_STOCKS, ...US_STOCKS];
   let created = 0;

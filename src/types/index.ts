@@ -41,123 +41,202 @@ export interface StockWithAdmin extends Stock {
 // ─── Section 1: Core Business (ธุรกิจหลัก) ──────────────────────────────────
 export interface CoreBusinessData {
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
   businessUnits: {
     name: string;
+    nameTh?: string;
+    nameEn?: string;
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
     revenuePercentage: number;
     color: string;
   }[];
   totalRevenue: string;
+  totalRevenueTh?: string;
+  totalRevenueEn?: string;
   fiscalYear: string;
 }
 
 // ─── Section 2: Customer Base (ฐานลูกค้า) ───────────────────────────────────
 export interface CustomerBaseData {
-  model: string; // "B2B", "B2C", "B2B2C"
+  model: string;
   description: string;
+  descriptionTh?: string;
+  descriptionEn?: string;
   customerSegments: {
     name: string;
+    nameTh?: string;
+    nameEn?: string;
     percentage: number;
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
   }[];
   stickiness: {
     factor: string;
+    factorTh?: string;
+    factorEn?: string;
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
     strength: "high" | "medium" | "low";
   }[];
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
 }
 
 // ─── Section 3: Revenue Model & Quality (Model รายได้) ───────────────────────
 export interface RevenueModelData {
   revenueTypes: {
-    type: string; // "Recurring" | "Subscription" | "Backlog" | "One-Time"
+    type: string;
+    typeTh?: string;
+    typeEn?: string;
     percentage: number;
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
     color: string;
   }[];
   qualitySummary: string;
+  qualitySummaryTh?: string;
+  qualitySummaryEn?: string;
   revenueEvolution: string;
-  keyMetrics: { label: string; value: string }[];
+  revenueEvolutionTh?: string;
+  revenueEvolutionEn?: string;
+  keyMetrics: {
+    label: string;
+    labelTh?: string;
+    labelEn?: string;
+    value: string;
+  }[];
 }
 
 // ─── Section 4: Financial Statements (งบการเงิน) ─────────────────────────────
 export interface FinancialsData {
-  years: string[]; // ["2020","2021","2022","2023","2024"]
+  years: string[];
   revenue: number[];
   netProfit: number[];
   operatingExpenses: number[];
   cashOnHand: number[];
   totalDebt: number[];
-  dividendYield: number[]; // percentage per year
+  dividendYield: number[];
   currency: string;
-  unit: string; // "million" | "billion"
+  unit: string;
   keyTakeawayRatios: {
     name: string;
+    nameTh?: string;
+    nameEn?: string;
     value: string;
     explanation: string;
+    explanationTh?: string;
+    explanationEn?: string;
     relevance: string;
+    relevanceTh?: string;
+    relevanceEn?: string;
   }[];
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
 }
 
 // ─── Section 5: 7 Powers ─────────────────────────────────────────────────────
 export interface SevenPowersData {
   powers: {
-    name: string; // Scale Economies, Network Economies, Counter-Positioning, Switching Costs, Branding, Cornered Resource, Process Power
+    name: string;
     level: "high" | "medium" | "low";
-    score: number; // 1-5 for radar chart
+    score: number;
     analysis: string;
+    analysisTh?: string;
+    analysisEn?: string;
   }[];
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
 }
 
 // ─── Section 6: Story & New S-Curve ──────────────────────────────────────────
 export interface StorySCurveData {
   currentStory: string;
+  currentStoryTh?: string;
+  currentStoryEn?: string;
   newSCurves: {
     title: string;
+    titleTh?: string;
+    titleEn?: string;
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
     potential: "high" | "medium" | "low";
   }[];
   hiddenGems: {
     title: string;
+    titleTh?: string;
+    titleEn?: string;
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
   }[];
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
 }
 
 // ─── Section 7: Risks (ความเสี่ยง) ──────────────────────────────────────────
 export interface RisksData {
   risks: {
     title: string;
+    titleTh?: string;
+    titleEn?: string;
     severity: "high" | "medium" | "low";
     description: string;
+    descriptionTh?: string;
+    descriptionEn?: string;
     mitigation: string;
+    mitigationTh?: string;
+    mitigationEn?: string;
   }[];
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
 }
 
 // ─── Section 8: CEO Profile & Execution ──────────────────────────────────────
 export interface CeoProfileData {
   name: string;
   title: string;
+  titleTh?: string;
+  titleEn?: string;
   background: string;
+  backgroundTh?: string;
+  backgroundEn?: string;
   ceoImageUrl?: string;
   executionTrackRecord: {
     claim: string;
+    claimTh?: string;
+    claimEn?: string;
     result: string;
+    resultTh?: string;
+    resultEn?: string;
     verdict: "delivered" | "partial" | "missed";
     source: string;
   }[];
   earningsCallHighlights: string[];
+  earningsCallHighlightsTh?: string[];
+  earningsCallHighlightsEn?: string[];
   beatMissRecord: {
     metric: string;
+    metricTh?: string;
+    metricEn?: string;
     target: string;
     actual: string;
     verdict: "beat" | "meet" | "miss";
   }[];
   summary: string;
+  summaryTh?: string;
+  summaryEn?: string;
 }
 
 // ─── Optional: Shareholders ──────────────────────────────────────────────────
@@ -180,6 +259,130 @@ export interface RecentNewsData {
     summary: string;
     sentiment: "positive" | "neutral" | "negative";
   }[];
+}
+
+// ─── Portfolio Types ──────────────────────────────────────────────────────────
+export interface PortfolioItem {
+  id: string;
+  portfolioId: string;
+  stockId: string;
+  symbol: string;
+  shares: number | null;
+  avgCost: number | null;
+  notes: string | null;
+  addedAt: Date;
+}
+
+export interface Portfolio {
+  id: string;
+  userId: string;
+  name: string;
+  items: PortfolioItem[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface PortfolioItemWithStock extends PortfolioItem {
+  stock?: {
+    id: string;
+    symbol: string;
+    name: string;
+    sector: string;
+    exchange: string;
+    logoUrl: string | null;
+  };
+}
+
+// ─── Transaction Types ───────────────────────────────────────────────────────
+export type TransactionType = "buy" | "sell" | "dividend";
+
+export interface Transaction {
+  id: string;
+  portfolioId: string;
+  stockId: string;
+  symbol: string;
+  type: TransactionType;
+  shares: number;
+  price: number;
+  fees: number;
+  currency: string;
+  date: Date;
+  notes: string | null;
+  createdAt: Date;
+}
+
+// ─── Portfolio Snapshot ──────────────────────────────────────────────────────
+export interface PortfolioSnapshot {
+  id: string;
+  portfolioId: string;
+  totalValue: number;
+  totalCost: number;
+  currency: string;
+  date: Date;
+  breakdown: string | null;
+}
+
+// ─── Price Alert ─────────────────────────────────────────────────────────────
+export type AlertDirection = "above" | "below";
+
+export interface Alert {
+  id: string;
+  userId: string;
+  symbol: string;
+  targetPrice: number;
+  direction: AlertDirection;
+  isTriggered: boolean;
+  triggeredAt: Date | null;
+  createdAt: Date;
+}
+
+// ─── Dividend Record ─────────────────────────────────────────────────────────
+export interface DividendRecord {
+  id: string;
+  portfolioId: string;
+  stockId: string;
+  symbol: string;
+  amount: number;
+  perShare: number | null;
+  exDate: Date | null;
+  payDate: Date | null;
+  currency: string;
+  createdAt: Date;
+}
+
+// ─── Chart Data ──────────────────────────────────────────────────────────────
+export interface ChartDataPoint {
+  timestamp: number;
+  date: string;
+  close: number;
+}
+
+export interface PortfolioSummary {
+  totalValue: number;
+  totalCost: number;
+  totalPL: number;
+  totalPLPct: number;
+  dailyPL: number;
+  dailyPLPct: number;
+  stockCount: number;
+}
+
+// ─── AI Health Score ─────────────────────────────────────────────────────────
+export interface HealthScoreBreakdown {
+  score: number;
+  label: string;
+}
+
+export interface HealthScore {
+  score: number;
+  breakdown: {
+    diversification: HealthScoreBreakdown;
+    sectorBalance: HealthScoreBreakdown;
+    riskQuality: HealthScoreBreakdown;
+    growthPotential: HealthScoreBreakdown;
+  };
+  summary: string;
+  topAction: string;
 }
 
 // ─── Admin Types ──────────────────────────────────────────────────────────────

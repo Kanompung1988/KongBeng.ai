@@ -2,8 +2,8 @@
 import { Shield } from "lucide-react";
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, Tooltip } from "recharts";
 import { SectionHeader } from "./core-business";
-import { parseSevenPowers } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseSevenPowers, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -18,6 +18,7 @@ const levelColors = {
 export function SevenPowersSection({ raw }: Props) {
   const data = parseSevenPowers(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   const radarData = data.powers.map((p) => ({
@@ -71,7 +72,7 @@ export function SevenPowersSection({ raw }: Props) {
                   {p.level.toUpperCase()} ({p.score}/5)
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">{p.analysis}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{getField(p, "analysis", lang)}</p>
             </div>
           ))}
         </div>
@@ -79,7 +80,7 @@ export function SevenPowersSection({ raw }: Props) {
         {/* Summary */}
         {data.summary && (
           <div className="pt-4 border-t border-border/50">
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "summary", lang)}</p>
           </div>
         )}
       </div>

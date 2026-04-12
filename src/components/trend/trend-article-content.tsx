@@ -25,7 +25,7 @@ export function TrendArticleContent({ article }: Props) {
       </h1>
 
       {/* Content */}
-      <div className="prose prose-invert prose-emerald max-w-none
+      <div className="prose prose-theme prose-emerald max-w-none
         prose-headings:text-foreground prose-headings:font-bold
         prose-p:text-muted-foreground prose-p:leading-relaxed
         prose-strong:text-foreground

@@ -58,9 +58,9 @@ export function HeroSection() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto mb-10">
         {[
-          { icon: TrendingUp, label: t("hero.stocksAnalyzed"), value: "200+" },
+          { icon: TrendingUp, label: t("hero.stocksAnalyzed"), value: "500+" },
           { icon: Shield, label: t("hero.dimensions"), value: "8" },
-          { icon: BarChart3, label: t("hero.aiEngine"), value: "Typhoon" },
+          { icon: BarChart3, label: t("hero.aiEngine"), value: "ขงเบ้ง AI" },
         ].map(({ icon: Icon, label, value }) => (
           <div key={label} className="glass-card p-4 text-center hover:border-white/10 transition-all">
             <Icon className="w-5 h-5 text-emerald-400 mx-auto mb-2" />

@@ -13,7 +13,7 @@ const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
 
 function isAdmin(email: string | undefined): boolean {
   if (!email) return false;
-  if (ADMIN_EMAILS.length === 0) return true;
+  if (ADMIN_EMAILS.length === 0) return false;
   return ADMIN_EMAILS.includes(email.toLowerCase());
 }
 
@@ -67,6 +67,39 @@ export async function middleware(request: NextRequest) {
       if (!user || !isAdmin(user.email)) {
         const url = request.nextUrl.clone();
         url.pathname = "/login";
+        return redirectWithCookies(url, supabaseResponse);
+      }
+    }
+
+    // Protect /dashboard — authenticated approved users only
+    if (request.nextUrl.pathname.startsWith("/dashboard")) {
+      if (!user) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/login";
+        return redirectWithCookies(url, supabaseResponse);
+      }
+      const memberStatus = user.app_metadata?.member_status;
+      if (memberStatus && memberStatus !== "approved") {
+        const url = request.nextUrl.clone();
+        url.pathname = "/pending-approval";
+        return redirectWithCookies(url, supabaseResponse);
+      }
+    }
+
+    // Member approval check — non-admin users with pending/rejected status
+    if (user && !isAdmin(user.email)) {
+      const memberStatus = user.app_metadata?.member_status;
+      const isOnPendingPage = request.nextUrl.pathname === "/pending-approval";
+      const isPublicPath = request.nextUrl.pathname === "/" ||
+        request.nextUrl.pathname.startsWith("/stock/") ||
+        request.nextUrl.pathname.startsWith("/stocks") ||
+        request.nextUrl.pathname.startsWith("/trend") ||
+        request.nextUrl.pathname.startsWith("/api/") ||
+        request.nextUrl.pathname.startsWith("/auth/");
+
+      if (memberStatus && memberStatus !== "approved" && !isOnPendingPage && !isPublicPath) {
+        const url = request.nextUrl.clone();
+        url.pathname = "/pending-approval";
         return redirectWithCookies(url, supabaseResponse);
       }
     }

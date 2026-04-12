@@ -14,8 +14,8 @@ import { StorySCurveSection } from "@/components/stock/sections/story-scurve";
 import { RisksSection } from "@/components/stock/sections/risks-section";
 import { CeoProfileSection } from "@/components/stock/sections/ceo-profile";
 import { ChatDrawer } from "@/components/chat/chat-drawer";
-import { BackLink } from "@/components/stock/back-link";
-import Image from "next/image";
+import { StockNavbar } from "@/components/stock/stock-navbar";
+import { TradingViewChartWrapper } from "@/components/stock/tradingview-wrapper";
 
 interface Props {
   params: Promise<{ symbol: string }>;
@@ -80,17 +80,7 @@ export default async function StockPage({ params }: Props) {
       </div>
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex items-center gap-4">
-          <a href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.jpg" alt="K" width={28} height={28} className="rounded-lg" />
-            <span className="text-sm font-semibold hidden sm:block">Khongbeng</span>
-          </a>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-sm font-mono font-semibold text-foreground">{stock.symbol}</span>
-          <BackLink />
-        </div>
-      </nav>
+      <StockNavbar symbol={stock.symbol} />
 
       {/* Stock Hero */}
       <StockHero stock={stock} />
@@ -105,6 +95,9 @@ export default async function StockPage({ params }: Props) {
 
           {/* Content Sections */}
           <main className="flex-1 min-w-0 space-y-12">
+            {/* TradingView Chart */}
+            <TradingViewChartWrapper symbol={stock.symbol} exchange={stock.exchange} />
+
             <CoreBusinessSection raw={stock.coreBusiness} />
             <CustomerBaseSection raw={stock.customerBase} />
             <RevenueModelSection raw={stock.revenueModel} />

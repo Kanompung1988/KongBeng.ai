@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { SearchCommand } from "@/components/search/search-command";
+import { SearchTrigger } from "@/components/search/search-command";
 import { HeroSection } from "@/components/landing/hero-section";
 import { FeaturedStocks } from "@/components/landing/featured-stocks";
 import { FeatureGrid } from "@/components/landing/feature-grid";
@@ -59,7 +59,7 @@ export default async function HomePage() {
       <HeroSection />
 
       <Suspense>
-        <SearchCommand />
+        <SearchTrigger />
       </Suspense>
 
       <FeaturedStocks thaiStocks={thaiStocks} usStocks={usStocks} />

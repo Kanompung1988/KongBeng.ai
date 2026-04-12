@@ -8,11 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Sparkles, Save, ArrowLeft, CheckCircle, AlertCircle, Building2, Users, PieChart, BarChart3, Shield, Rocket, AlertTriangle, UserCheck, Globe, FileText } from "lucide-react";
+import { Loader2, Sparkles, Save, ArrowLeft, CheckCircle, AlertCircle, Building2, Users, PieChart, BarChart3, Shield, Rocket, AlertTriangle, UserCheck, Globe, FileText, ImageIcon } from "lucide-react";
 import { SECTION_LABELS, type SectionKey, type Stock } from "@/types";
 import { saveStockAction, fetchAIDataAction } from "@/lib/actions";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
+import { getLogoUrl } from "@/lib/logo";
+import { getIndexesForExchange, INDEX_LABELS } from "@/lib/constants/indexes";
 
 const ALL_SECTIONS: { key: SectionKey; icon: typeof Building2; color: string }[] = [
   { key: "coreBusiness", icon: Building2, color: "text-emerald-400" },
@@ -39,6 +41,7 @@ export function StockForm({ stock }: Props) {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [fetching, setFetching] = useState(false);
+  const [detectingIndexes, setDetectingIndexes] = useState(false);
 
   const [form, setForm] = useState({
     symbol: stock?.symbol || "",
@@ -57,6 +60,7 @@ export function StockForm({ stock }: Props) {
     ceoProfile: stock?.ceoProfile || "",
     shareholders: stock?.shareholders || "",
     recentNews: stock?.recentNews || "",
+    marketIndexes: (stock as Record<string, unknown>)?.marketIndexes as string[] || [],
   });
 
   const update = (key: string, value: string | boolean) => {
@@ -105,6 +109,30 @@ export function StockForm({ stock }: Props) {
       toast({ title: "JSON formatted" });
     } catch {
       toast({ title: "Invalid JSON — cannot format", variant: "destructive" });
+    }
+  };
+
+  const handleDetectIndexes = async () => {
+    if (!form.symbol) {
+      toast({ title: "Enter a stock symbol first", variant: "destructive" });
+      return;
+    }
+    setDetectingIndexes(true);
+    try {
+      const res = await fetch(`/api/admin/detect-indexes?symbol=${encodeURIComponent(form.symbol)}&exchange=${encodeURIComponent(form.exchange)}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Detection failed");
+      const indexes: string[] = data.indexes || [];
+      setForm((f) => ({ ...f, marketIndexes: indexes }));
+      if (indexes.length > 0) {
+        toast({ title: `Detected: ${indexes.join(", ")}`, description: `Last updated: ${data.lastUpdated}` });
+      } else {
+        toast({ title: "No index membership found", description: "You can select manually below." });
+      }
+    } catch (e: unknown) {
+      toast({ title: "Detection failed", description: e instanceof Error ? e.message : "Try again", variant: "destructive" });
+    } finally {
+      setDetectingIndexes(false);
     }
   };
 
@@ -201,9 +229,9 @@ export function StockForm({ stock }: Props) {
                     onChange={(e) => update("exchange", e.target.value)}
                     className="w-full px-3 py-2 rounded-lg bg-muted border border-border text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
                   >
-                    <option value="SET">🇹🇭 SET (Thailand)</option>
-                    <option value="NYSE">🇺🇸 NYSE</option>
-                    <option value="NASDAQ">🇺🇸 NASDAQ</option>
+                    <option value="SET">TH SET (Thailand)</option>
+                    <option value="NYSE">US NYSE</option>
+                    <option value="NASDAQ">US NASDAQ</option>
                   </select>
                 </div>
               </div>
@@ -217,11 +245,69 @@ export function StockForm({ stock }: Props) {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium">Logo URL</Label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <Input value={form.logoUrl} onChange={(e) => update("logoUrl", e.target.value)} placeholder="https://logo.clearbit.com/company.com" className="flex-1" />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const url = getLogoUrl(form.symbol, form.exchange);
+                      if (url) {
+                        update("logoUrl", url);
+                        toast({ title: "Logo URL set!" });
+                      } else {
+                        toast({ title: "No logo mapping found for this symbol", variant: "destructive" });
+                      }
+                    }}
+                    className="gap-1 shrink-0"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    Auto
+                  </Button>
                   {form.logoUrl && (
                     <Image src={form.logoUrl} alt="logo" width={32} height={32} className="rounded-md bg-white p-0.5 shrink-0" unoptimized />
                   )}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs font-medium">Market Indexes</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleDetectIndexes}
+                    disabled={detectingIndexes || !form.symbol}
+                    className="gap-1 shrink-0 h-6 text-[10px] px-2"
+                  >
+                    {detectingIndexes ? <Loader2 className="w-3 h-3 animate-spin" /> : <Sparkles className="w-3 h-3" />}
+                    Auto
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {getIndexesForExchange(form.exchange).map((idx) => {
+                    const checked = form.marketIndexes.includes(idx);
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          const updated = checked
+                            ? form.marketIndexes.filter((i: string) => i !== idx)
+                            : [...form.marketIndexes, idx];
+                          setForm((f) => ({ ...f, marketIndexes: updated }));
+                        }}
+                        className={`px-2.5 py-1 text-xs rounded-lg border transition-colors ${
+                          checked
+                            ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+                            : "bg-muted/30 border-border text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        {INDEX_LABELS[idx]?.en || idx}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/30">

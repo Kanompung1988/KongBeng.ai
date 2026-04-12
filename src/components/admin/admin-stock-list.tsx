@@ -50,8 +50,8 @@ export function AdminStockList({ stocks }: { stocks: StockRow[] }) {
 
   const filterTabs: { key: FilterTab; label: string; count: number }[] = [
     { key: "all", label: "All", count: rows.length },
-    { key: "thai", label: "🇹🇭 Thai", count: rows.filter(s => s.exchange === "SET").length },
-    { key: "us", label: "🇺🇸 US", count: rows.filter(s => s.exchange !== "SET").length },
+    { key: "thai", label: "TH Thai", count: rows.filter(s => s.exchange === "SET").length },
+    { key: "us", label: "US", count: rows.filter(s => s.exchange !== "SET").length },
     { key: "noai", label: "No AI", count: rows.filter(s => !s.hasAI).length },
     { key: "draft", label: "Drafts", count: rows.filter(s => !s.isPublished).length },
   ];

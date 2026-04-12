@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { Language } from "@/lib/i18n/translations";
 import type {
   CoreBusinessData,
   CustomerBaseData,
@@ -15,6 +16,23 @@ import type {
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+// Localized field access — picks `fieldTh` or `fieldEn` if available, else falls back to original
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getField(data: any, field: string, lang: Language): string {
+  const suffix = lang === "th" ? "Th" : "En";
+  const localized = data[field + suffix];
+  if (typeof localized === "string" && localized) return localized;
+  return (data[field] as string) || "";
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function getFieldArray(data: any, field: string, lang: Language): string[] {
+  const suffix = lang === "th" ? "Th" : "En";
+  const localized = data[field + suffix];
+  if (Array.isArray(localized) && localized.length > 0) return localized;
+  return (data[field] as string[]) || [];
 }
 
 // Safe JSON parse with type guard
@@ -104,15 +122,15 @@ export function truncate(text: string, maxLength: number): string {
   return text.slice(0, maxLength - 3) + "...";
 }
 
-// Exchange flag emoji
+// Exchange label (text-only, no emoji)
 export function exchangeFlag(exchange: string): string {
   switch (exchange.toUpperCase()) {
-    case "SET":    return "🇹🇭";
-    case "NASDAQ": return "🇺🇸";
-    case "NYSE":   return "🇺🇸";
-    case "SGX":    return "🇸🇬";
-    case "HKEX":   return "🇭🇰";
-    default:       return "🌐";
+    case "SET":    return "TH";
+    case "NASDAQ": return "US";
+    case "NYSE":   return "US";
+    case "SGX":    return "SG";
+    case "HKEX":   return "HK";
+    default:       return "";
   }
 }
 

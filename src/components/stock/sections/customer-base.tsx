@@ -1,8 +1,8 @@
 "use client";
 import { Users } from "lucide-react";
 import { SectionHeader } from "./core-business";
-import { parseCustomerBase } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseCustomerBase, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -11,6 +11,7 @@ interface Props {
 export function CustomerBaseSection({ raw }: Props) {
   const data = parseCustomerBase(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   const strengthColors = {
@@ -28,7 +29,7 @@ export function CustomerBaseSection({ raw }: Props) {
           <span className="px-3 py-1.5 rounded-lg bg-blue-500/20 text-blue-300 border border-blue-500/30 text-sm font-semibold">
             {data.model}
           </span>
-          <p className="text-muted-foreground text-sm">{data.description}</p>
+          <p className="text-muted-foreground text-sm">{getField(data, "description", lang)}</p>
         </div>
 
         {/* Customer Segments */}
@@ -39,10 +40,10 @@ export function CustomerBaseSection({ raw }: Props) {
               {data.customerSegments.map((seg, i) => (
                 <div key={i} className="glass-card p-4 bg-muted/20">
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-foreground">{seg.name}</span>
+                    <span className="text-sm font-medium text-foreground">{getField(seg, "name", lang)}</span>
                     <span className="text-xs font-mono text-blue-400">{seg.percentage}%</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{seg.description}</p>
+                  <p className="text-xs text-muted-foreground">{getField(seg, "description", lang)}</p>
                 </div>
               ))}
             </div>
@@ -60,8 +61,8 @@ export function CustomerBaseSection({ raw }: Props) {
                     {s.strength.toUpperCase()}
                   </span>
                   <div>
-                    <span className="text-sm font-medium text-foreground">{s.factor}</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">{s.description}</p>
+                    <span className="text-sm font-medium text-foreground">{getField(s, "factor", lang)}</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">{getField(s, "description", lang)}</p>
                   </div>
                 </div>
               ))}
@@ -72,7 +73,7 @@ export function CustomerBaseSection({ raw }: Props) {
         {/* Summary */}
         {data.summary && (
           <div className="pt-4 border-t border-border/50">
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "summary", lang)}</p>
           </div>
         )}
       </div>

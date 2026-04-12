@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { LanguageProvider } from "@/lib/i18n/context";
+import { SearchCommand } from "@/components/search/search-command";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
@@ -51,11 +52,13 @@ export default function RootLayout({
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
+          themes={["dark", "navy", "light"]}
           enableSystem={false}
           disableTransitionOnChange
         >
           <LanguageProvider>
             {children}
+            <SearchCommand />
           </LanguageProvider>
           <Toaster />
         </ThemeProvider>

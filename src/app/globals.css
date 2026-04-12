@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  /* Dark theme (default — emerald dark) */
+  :root,
+  .dark {
     --background: 222 47% 6%;
     --foreground: 210 40% 98%;
     --card: 222 47% 9%;
@@ -22,6 +24,54 @@
     --destructive-foreground: 210 40% 98%;
     --border: 222 47% 16%;
     --input: 222 47% 16%;
+    --ring: 160 84% 39%;
+    --radius: 0.75rem;
+  }
+
+  /* Navy theme (กรมท่า) */
+  .navy {
+    --background: 220 40% 13%;
+    --foreground: 210 40% 98%;
+    --card: 220 38% 17%;
+    --card-foreground: 210 40% 98%;
+    --popover: 220 38% 15%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 220 40% 13%;
+    --secondary: 220 35% 22%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 220 35% 22%;
+    --muted-foreground: 215 20% 60%;
+    --accent: 43 96% 56%;
+    --accent-foreground: 220 40% 13%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 220 35% 24%;
+    --input: 220 35% 24%;
+    --ring: 160 84% 39%;
+    --radius: 0.75rem;
+  }
+
+  /* Light theme */
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 210 20% 97%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 160 84% 39%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 20% 93%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 20% 93%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 43 96% 50%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
     --ring: 160 84% 39%;
     --radius: 0.75rem;
   }
@@ -45,13 +95,13 @@
 @layer utilities {
   /* Glassmorphism card */
   .glass-card {
-    @apply bg-card/60 backdrop-blur-md border border-white/5 rounded-xl;
+    @apply bg-card/60 backdrop-blur-md border border-border/50 rounded-xl;
   }
 
   /* Premium glass card with gradient border */
   .glass-card-premium {
     @apply bg-card/60 backdrop-blur-md rounded-xl relative;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid hsl(var(--border) / 0.3);
   }
   .glass-card-premium:hover {
     border-color: rgba(52, 211, 153, 0.3);
@@ -84,6 +134,46 @@
   /* Section fade-in */
   .section-reveal {
     @apply animate-fade-in opacity-0;
+  }
+
+  /* Prose theme adaptation — invert only on dark themes */
+  .dark .prose-theme,
+  .navy .prose-theme {
+    @apply prose-invert;
+  }
+
+  /* Prose table styling — dark mode dashboard */
+  .prose table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.825rem;
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .prose thead {
+    background: rgba(255, 255, 255, 0.06);
+  }
+  .prose thead th {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    color: rgb(228 228 231);
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+  }
+  .prose tbody td {
+    padding: 0.45rem 0.75rem;
+    color: rgb(212 212 216);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    vertical-align: top;
+  }
+  .prose tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .prose tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
   }
 
   /* Ticker tape animation */

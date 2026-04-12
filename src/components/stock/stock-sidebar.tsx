@@ -4,6 +4,7 @@ import { type SectionKey } from "@/types";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import { useT } from "@/lib/i18n/context";
+import type { TranslationKey } from "@/lib/i18n/translations";
 
 const SECTIONS: SectionKey[] = [
   "coreBusiness",
@@ -16,7 +17,7 @@ const SECTIONS: SectionKey[] = [
   "ceoProfile",
 ];
 
-const SECTION_I18N: Record<SectionKey, string> = {
+const SECTION_I18N: Record<SectionKey, TranslationKey> = {
   coreBusiness: "section.coreBusiness",
   customerBase: "section.customerBase",
   revenueModel: "section.revenueModel",

@@ -1,7 +1,8 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/lib/i18n/context";
-import { TrendingUp } from "lucide-react";
+import { Newspaper } from "lucide-react";
 
 interface TickerArticle {
   id: string;
@@ -11,15 +12,32 @@ interface TickerArticle {
 }
 
 const categoryEmoji: Record<string, string> = {
-  macro: "🌍",
-  tech: "💻",
-  commodities: "🛢️",
-  crypto: "₿",
-  "thai-market": "🇹🇭",
+  macro: "Macro",
+  tech: "Tech",
+  commodities: "Comm",
+  crypto: "Crypto",
+  "thai-market": "TH",
 };
 
-export function TrendTicker({ articles }: { articles: TickerArticle[] }) {
-  const { lang } = useLanguage();
+export function TrendTicker({ articles: initial }: { articles: TickerArticle[] }) {
+  const { lang, t } = useLanguage();
+  const [articles, setArticles] = useState(initial);
+
+  // Poll for fresh articles every 5 minutes
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch("/api/trend/latest");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.length > 0) setArticles(data);
+        }
+      } catch {
+        // ignore polling errors
+      }
+    }, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!articles.length) return null;
 
@@ -31,8 +49,8 @@ export function TrendTicker({ articles }: { articles: TickerArticle[] }) {
       <div className="flex items-center">
         {/* Label */}
         <div className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 bg-emerald-500/10 border-r border-border/50 z-10">
-          <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="text-xs font-semibold text-emerald-400 whitespace-nowrap">AI Trend</span>
+          <Newspaper className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="text-xs font-semibold text-emerald-400 whitespace-nowrap">{t("nav.trend")}</span>
         </div>
 
         {/* Scrolling ticker */}
@@ -40,7 +58,7 @@ export function TrendTicker({ articles }: { articles: TickerArticle[] }) {
           <div className="flex animate-ticker whitespace-nowrap">
             {items.map((article, i) => {
               const title = (lang === "th" && article.titleTh) || article.title;
-              const emoji = categoryEmoji[article.category] || "📊";
+              const emoji = categoryEmoji[article.category] || "News";
               return (
                 <Link
                   key={`${article.id}-${i}`}

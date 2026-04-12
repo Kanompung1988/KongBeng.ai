@@ -1,8 +1,8 @@
 "use client";
 import { Rocket } from "lucide-react";
 import { SectionHeader } from "./core-business";
-import { parseStorySCurve } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseStorySCurve, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -17,6 +17,7 @@ const potentialColors = {
 export function StorySCurveSection({ raw }: Props) {
   const data = parseStorySCurve(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   return (
@@ -27,7 +28,7 @@ export function StorySCurveSection({ raw }: Props) {
         {data.currentStory && (
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground">{t("stock.currentStory")}</h3>
-            {data.currentStory.split("\n").filter(Boolean).map((p, i) => (
+            {getField(data, "currentStory", lang).split("\n").filter(Boolean).map((p, i) => (
               <p key={i} className="text-sm text-muted-foreground leading-relaxed">{p}</p>
             ))}
           </div>
@@ -41,12 +42,12 @@ export function StorySCurveSection({ raw }: Props) {
               {data.newSCurves.map((sc, i) => (
                 <div key={i} className="glass-card p-4 bg-muted/20">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-foreground">{sc.title}</span>
+                    <span className="text-sm font-semibold text-foreground">{getField(sc, "title", lang)}</span>
                     <span className={`px-2 py-0.5 rounded text-xs font-semibold border ${potentialColors[sc.potential]}`}>
                       {sc.potential.toUpperCase()}
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">{sc.description}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{getField(sc, "description", lang)}</p>
                 </div>
               ))}
             </div>
@@ -60,10 +61,10 @@ export function StorySCurveSection({ raw }: Props) {
             <div className="space-y-3">
               {data.hiddenGems.map((gem, i) => (
                 <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-gold-500/5 border border-gold-500/10">
-                  <span className="text-gold-400 text-lg shrink-0">💎</span>
+                  <span className="text-gold-400 text-lg shrink-0">*</span>
                   <div>
-                    <span className="text-sm font-medium text-foreground">{gem.title}</span>
-                    <p className="text-xs text-muted-foreground mt-0.5">{gem.description}</p>
+                    <span className="text-sm font-medium text-foreground">{getField(gem, "title", lang)}</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">{getField(gem, "description", lang)}</p>
                   </div>
                 </div>
               ))}
@@ -74,7 +75,7 @@ export function StorySCurveSection({ raw }: Props) {
         {/* Summary */}
         {data.summary && (
           <div className="pt-4 border-t border-border/50">
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "summary", lang)}</p>
           </div>
         )}
       </div>

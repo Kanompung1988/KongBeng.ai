@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import type { StockWithAdmin } from "@/types";
 import { useT } from "@/lib/i18n/context";
+import { createClient } from "@/lib/supabase/client";
 
 interface Props {
   stock: StockWithAdmin;
@@ -27,7 +28,7 @@ function makeWelcome(symbol: string, name: string): Message {
   return {
     id: "welcome",
     role: "assistant",
-    content: `Greetings, Strategist. I am the Khongbeng AI, deeply versed in the analysis of **${symbol} — ${name}**.\n\nAsk me anything about its business model, financials, 7 Powers, risks, or CEO. ⚔️`,
+    content: `Greetings, Strategist. I am the Khongbeng AI, deeply versed in the analysis of **${symbol} — ${name}**.\n\nAsk me anything about its business model, financials, 7 Powers, risks, or CEO.`,
   };
 }
 
@@ -35,7 +36,16 @@ export function ChatDrawer({ stock }: Props) {
   const [open, setOpen] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionIdRef = useRef("");
+  const [userId, setUserId] = useState<string | null>(null);
   const t = useT();
+
+  // Get auth user
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) setUserId(user.id);
+    });
+  }, []);
 
   const welcome: Message = {
     id: "welcome",
@@ -46,8 +56,8 @@ export function ChatDrawer({ stock }: Props) {
   const {
     messages, input, handleInputChange, handleSubmit, isLoading, setMessages,
   } = useChat({
-    api: "/api/chat",
-    body: { stockId: stock.id, symbol: stock.symbol },
+    api: "/api/ai-chat",
+    body: { stockId: stock.id, symbol: stock.symbol, stockSymbol: stock.symbol, userId },
     initialMessages: [welcome],
     onFinish: (message) => {
       // Save assistant reply to DB (fire and forget)
@@ -188,7 +198,7 @@ export function ChatDrawer({ stock }: Props) {
                 )}
               >
                 {msg.role === "assistant" ? (
-                  <div className="prose prose-sm prose-invert max-w-none [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:ml-4 [&>ul]:list-disc [&>ol]:mb-2 [&>ol]:ml-4 [&>ol]:list-decimal [&_strong]:text-emerald-300">
+                  <div className="prose prose-sm prose-theme max-w-none [&>p]:mb-2 [&>ul]:mb-2 [&>ul]:ml-4 [&>ul]:list-disc [&>ol]:mb-2 [&>ol]:ml-4 [&>ol]:list-decimal [&_strong]:text-emerald-300">
                     <ReactMarkdown>{msg.content}</ReactMarkdown>
                   </div>
                 ) : (

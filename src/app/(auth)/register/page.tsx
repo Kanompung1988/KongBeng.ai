@@ -21,7 +21,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -34,9 +34,16 @@ export default function RegisterPage() {
       setError(error.message);
       setLoading(false);
     } else {
+      // Create Prisma User record with pending status
+      if (signUpData.user) {
+        await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: signUpData.user.id, email, name }),
+        }).catch(() => {});
+      }
       setSuccess(true);
       setLoading(false);
-      // Auto-redirect after 2 seconds
       setTimeout(() => {
         router.push("/login");
         router.refresh();

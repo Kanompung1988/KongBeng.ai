@@ -113,9 +113,9 @@ Important:
 }
 
 export async function POST(req: Request) {
-  // Auth check
+  // Auth check — require CRON_SECRET to be set and match
   const authHeader = req.headers.get("authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return new Response("Unauthorized", { status: 401 });
   }
 

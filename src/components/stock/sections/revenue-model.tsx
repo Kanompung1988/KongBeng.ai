@@ -2,8 +2,8 @@
 import { PieChart as PieChartIcon } from "lucide-react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { SectionHeader } from "./core-business";
-import { parseRevenueModel } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseRevenueModel, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -14,6 +14,7 @@ const DEFAULT_COLORS = ["#10b981", "#3b82f6", "#f59e0b", "#8b5cf6", "#ef4444"];
 export function RevenueModelSection({ raw }: Props) {
   const data = parseRevenueModel(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   return (
@@ -62,11 +63,11 @@ export function RevenueModelSection({ raw }: Props) {
                         className="w-3 h-3 rounded-full shrink-0"
                         style={{ backgroundColor: rt.color || DEFAULT_COLORS[i % DEFAULT_COLORS.length] }}
                       />
-                      <span className="text-sm font-medium text-foreground">{rt.type}</span>
+                      <span className="text-sm font-medium text-foreground">{getField(rt, "type", lang)}</span>
                     </div>
                     <span className="text-sm font-mono text-purple-400">{rt.percentage}%</span>
                   </div>
-                  <p className="text-xs text-muted-foreground pl-5">{rt.description}</p>
+                  <p className="text-xs text-muted-foreground pl-5">{getField(rt, "description", lang)}</p>
                 </div>
               ))}
             </div>
@@ -77,7 +78,7 @@ export function RevenueModelSection({ raw }: Props) {
         {data.qualitySummary && (
           <div className="pt-4 border-t border-border/50">
             <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.revenueQuality")}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.qualitySummary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "qualitySummary", lang)}</p>
           </div>
         )}
 
@@ -87,7 +88,7 @@ export function RevenueModelSection({ raw }: Props) {
             {data.keyMetrics.map((m, i) => (
               <div key={i} className="glass-card p-3 bg-muted/20 text-center">
                 <div className="text-lg font-bold text-foreground">{m.value}</div>
-                <div className="text-xs text-muted-foreground">{m.label}</div>
+                <div className="text-xs text-muted-foreground">{getField(m, "label", lang)}</div>
               </div>
             ))}
           </div>
@@ -97,7 +98,7 @@ export function RevenueModelSection({ raw }: Props) {
         {data.revenueEvolution && (
           <div className="pt-4 border-t border-border/50">
             <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.revenueEvolution")}</h3>
-            {data.revenueEvolution.split("\n").filter(Boolean).map((p, i) => (
+            {getField(data, "revenueEvolution", lang).split("\n").filter(Boolean).map((p, i) => (
               <p key={i} className="text-sm text-muted-foreground leading-relaxed mb-2">{p}</p>
             ))}
           </div>

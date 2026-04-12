@@ -14,7 +14,11 @@ import { fetchStockAnalysis } from "@/lib/typhoon";
 export async function POST(req: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  if (adminEmails.length === 0 || !adminEmails.includes(user.email.toLowerCase())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => ({}));
   const targetSymbol: string | undefined = body.symbol;
@@ -60,7 +64,11 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user?.email) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const adminEmails = (process.env.ADMIN_EMAILS || "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  if (adminEmails.length === 0 || !adminEmails.includes(user.email.toLowerCase())) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   const total    = await prisma.stock.count();
   const withAI   = await prisma.stock.count({ where: { coreBusiness: { not: null } } });

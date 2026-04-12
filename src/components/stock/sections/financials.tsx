@@ -5,8 +5,8 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
 import { SectionHeader } from "./core-business";
-import { parseFinancials } from "@/lib/utils";
-import { useT } from "@/lib/i18n/context";
+import { parseFinancials, getField } from "@/lib/utils";
+import { useT, useLanguage } from "@/lib/i18n/context";
 
 interface Props {
   raw: string | null | undefined;
@@ -21,6 +21,7 @@ const CHART_TOOLTIP_STYLE = {
 export function FinancialsSection({ raw }: Props) {
   const data = parseFinancials(raw);
   const t = useT();
+  const { lang } = useLanguage();
   if (!data) return null;
 
   const unitLabel = data.unit === "billion" ? "B" : "M";
@@ -123,11 +124,11 @@ export function FinancialsSection({ raw }: Props) {
               {data.keyTakeawayRatios.map((r, i) => (
                 <div key={i} className="glass-card p-4 bg-muted/20">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-foreground">{r.name}</span>
+                    <span className="text-sm font-medium text-foreground">{getField(r, "name", lang)}</span>
                     <span className="text-lg font-bold font-mono text-gold-400">{r.value}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1">{r.explanation}</p>
-                  <p className="text-xs text-emerald-400/80 italic">{r.relevance}</p>
+                  <p className="text-xs text-muted-foreground mb-1">{getField(r, "explanation", lang)}</p>
+                  <p className="text-xs text-emerald-400/80 italic">{getField(r, "relevance", lang)}</p>
                 </div>
               ))}
             </div>
@@ -138,7 +139,7 @@ export function FinancialsSection({ raw }: Props) {
         {data.summary && (
           <div className="glass-card p-6">
             <h3 className="text-sm font-semibold text-foreground mb-2">{t("stock.summary")}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{data.summary}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{getField(data, "summary", lang)}</p>
           </div>
         )}
       </div>
