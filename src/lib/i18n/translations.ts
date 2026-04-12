@@ -43,8 +43,8 @@ export const translations = {
 
   // Footer
   "footer.disclaimer": {
-    th: "ข้อมูลนี้ใช้เพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำทางการเงิน กรุณาศึกษาข้อมูลด้วยตนเองก่อนตัดสินใจลงทุน",
-    en: "For informational purposes only. Not financial advice. Always do your own research.",
+    th: "ข้อมูลทั้งหมดในเว็บไซต์นี้จัดทำขึ้นเพื่อการศึกษาและอ้างอิงเท่านั้น ไม่ใช่คำแนะนำการลงทุนและไม่ใช่การชักชวนซื้อขายหลักทรัพย์ ผู้ให้บริการไม่ได้รับใบอนุญาตเป็นผู้แนะนำการลงทุนจาก ก.ล.ต. ผลการดำเนินงานในอดีตไม่ใช่สิ่งยืนยันผลในอนาคต การลงทุนมีความเสี่ยง ผู้ลงทุนควรศึกษาข้อมูลและพิจารณาด้วยตนเองก่อนตัดสินใจลงทุน",
+    en: "All content on this website is for educational and informational purposes only. This is not investment advice or a solicitation to buy or sell securities. This service is not licensed as an investment advisor. Past performance is not indicative of future results. Investing involves risk; please conduct your own due diligence.",
   },
 
   // Section Headers (already bilingual in SECTION_LABELS, but for sidebar/other uses)
@@ -237,7 +237,7 @@ export const translations = {
   "ai.getRecommendation": { th: "ขอคำแนะนำ", en: "Get Recommendations" },
   "ai.marketBrief": { th: "สรุปตลาดประจำวัน", en: "Daily Market Brief" },
   "ai.refreshAnalysis": { th: "วิเคราะห์ใหม่", en: "Refresh Analysis" },
-  "ai.disclaimer": { th: "ข้อมูลนี้สร้างโดย AI เพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำทางการเงิน", en: "AI-generated for educational purposes only. Not financial advice." },
+  "ai.disclaimer": { th: "ข้อมูลนี้สร้างโดย AI เพื่อการศึกษาเท่านั้น ไม่ใช่คำแนะนำการลงทุนและไม่ใช่การชักชวนซื้อขายหลักทรัพย์ ผู้ใช้ควรตัดสินใจด้วยตนเอง", en: "AI-generated for educational purposes only. Not investment advice or a solicitation to trade. Always make your own investment decisions." },
   "ai.diversification": { th: "การกระจายความเสี่ยง", en: "Diversification" },
   "ai.sectorBalance": { th: "ความสมดุลกลุ่มอุตสาหกรรม", en: "Sector Balance" },
   "ai.riskQuality": { th: "คุณภาพความเสี่ยง", en: "Risk Quality" },
