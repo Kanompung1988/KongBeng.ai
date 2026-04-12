@@ -286,27 +286,25 @@ export function DashboardContent() {
     setPortfolioLoading(false);
   }, [activePortfolioId]);
 
-  // Fetch chart data
   const fetchChartData = useCallback(async () => {
-    if (!activePortfolioId || items.length === 0) {
+    if (!activePortfolioId) {
       setChartData([]);
       return;
     }
     setChartLoading(true);
     try {
-      const symbols = items.map((i) => i.symbol).join(",");
       const res = await fetch(
-        `/api/yahoo/chart?symbols=${symbols}&range=${chartRange}&portfolioId=${activePortfolioId}`
+        `/api/cron/snapshot?portfolioId=${activePortfolioId}&range=${chartRange}`
       );
       if (res.ok) {
-        const data: ChartDataPoint[] = await res.json();
+        const { data }: { data: ChartDataPoint[] } = await res.json();
         setChartData(data);
       }
     } catch {
       /* ignore */
     }
     setChartLoading(false);
-  }, [activePortfolioId, items, chartRange]);
+  }, [activePortfolioId, chartRange]);
 
   // Initial load
   useEffect(() => {
@@ -318,12 +316,12 @@ export function DashboardContent() {
     fetchPortfolio();
   }, [fetchPortfolio]);
 
-  // Fetch chart when portfolio data or range changes
+  // Fetch chart when portfolio or range changes
   useEffect(() => {
-    if (portfolio && portfolio.items.length > 0) {
+    if (activePortfolioId) {
       fetchChartData();
     }
-  }, [portfolio, chartRange, fetchChartData]);
+  }, [activePortfolioId, chartRange, fetchChartData]);
 
   // Auto-refresh every 30s
   useEffect(() => {
@@ -393,7 +391,7 @@ export function DashboardContent() {
     // Find first non-watchlist portfolio and add
     const target = portfolios.find((p) => !p.isWatchlist);
     if (!target) return;
-    fetch("/api/portfolio/add", {
+    fetch("/api/portfolio", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ portfolioId: target.id, symbol, stockId }),

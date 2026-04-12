@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "th_TH",
-    url: process.env.NEXT_PUBLIC_APP_URL,
+    url: process.env.NEXT_PUBLIC_APP_URL ?? "https://kongbeng.com",
     title: "Khongbeng Strategist — Premium Stock Analysis",
     description: "AI-powered strategic stock analysis. Know what you own.",
     siteName: "Khongbeng Strategist",

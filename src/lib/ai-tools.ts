@@ -157,7 +157,7 @@ export async function searchNews(query?: string, limit = 5): Promise<string> {
 // ─── Get user portfolio ──────────────────────────────────────────────────────
 export async function getPortfolio(userId: string): Promise<string> {
   const portfolio = await prisma.portfolio.findFirst({
-    where: { userId },
+    where: { userId, isWatchlist: false },
     include: { items: true },
   });
 

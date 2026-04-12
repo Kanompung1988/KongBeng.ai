@@ -8,6 +8,7 @@ export interface Stock {
   sector: string;
   exchange: string;
   logoUrl?: string | null;
+  marketIndexes?: string[];
 
   // 8 analysis sections (JSON strings)
   coreBusiness?: string | null;

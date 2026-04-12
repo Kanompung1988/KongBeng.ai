@@ -86,6 +86,7 @@ export async function GET(req: NextRequest) {
   return Response.json({
     id: portfolio.id,
     name: portfolio.name,
+    isWatchlist: portfolio.isWatchlist,
     items,
   });
 }

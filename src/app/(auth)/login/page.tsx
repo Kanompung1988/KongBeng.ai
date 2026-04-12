@@ -23,8 +23,7 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirect to /admin — middleware will redirect non-admin users to /
-      router.push("/admin");
+      router.push("/dashboard");
       router.refresh();
     }
   };

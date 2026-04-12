@@ -8,6 +8,7 @@ export interface PortfolioContextItem {
   sector: string;
   exchange: string;
   weight: number;
+  value: number;
   pl: number;
   plPct: number;
   price: number | null;
@@ -89,6 +90,7 @@ export async function buildPortfolioContext(userId: string): Promise<PortfolioCo
       sector: stock.sector,
       exchange: stock.exchange,
       weight: 0, // calculated below
+      value: currentValue,
       pl,
       plPct: Math.round(plPct * 100) / 100,
       price,
@@ -100,8 +102,7 @@ export async function buildPortfolioContext(userId: string): Promise<PortfolioCo
   const sectorWeights: Record<string, number> = {};
   if (totalValue > 0) {
     for (const item of enrichedItems) {
-      const itemValue = item.price != null ? item.price * item.shares : (totalCost > 0 ? (item.shares * (totalCost / enrichedItems.length)) : 0);
-      item.weight = Math.round((itemValue / totalValue) * 10000) / 100;
+      item.weight = Math.round((item.value / totalValue) * 10000) / 100;
     }
     for (const [sector, value] of Object.entries(sectorValues)) {
       sectorWeights[sector] = Math.round((value / totalValue) * 10000) / 100;

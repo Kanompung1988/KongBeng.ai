@@ -61,7 +61,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
       type: "article",
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/stock/${stock.symbol}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL ?? "https://kongbeng.com"}/stock/${stock.symbol}`,
     },
     twitter: { card: "summary_large_image", title, description },
   };
